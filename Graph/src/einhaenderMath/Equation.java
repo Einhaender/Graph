@@ -6,6 +6,11 @@ import java.util.logging.Logger;
 import misc.LogFormatter;
 
 // TODO get rid of this when able.
+
+// TODO here's a theory. I think I heard reference on the internet to using strings to identify methods (although I recal that it was
+// laggy). So is it possibly to compile a string to a method? if so that would be SO much easier. and probably less laggy, depending on
+// how laggy compiling is.
+
 @SuppressWarnings("unused")
 public class Equation {
 	private String								equationOrigional;
