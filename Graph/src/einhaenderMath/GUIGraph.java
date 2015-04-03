@@ -46,6 +46,7 @@ public class GUIGraph extends JPanel {
 		private listenerButtEvaluate() {
 		}
 		
+		// TODO try using java to compile equation as class with java.Math imported? auto replace sin(blah) with Math.sin if necessary.
 		public void actionPerformed(ActionEvent e) {
 			String txtError = "";
 			try {
