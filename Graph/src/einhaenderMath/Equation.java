@@ -121,7 +121,7 @@ public class Equation {
 		equationOrigional = equation;
 		equationReformated = equation;
 		this.variables = variables;
-		log = new PrettyLogger(getClass(), true, logLevel);
+		log = new PrettyLogger(getClass(), logLevel, true);
 		log.setLevel(logLevel);
 		reformat();
 	}
