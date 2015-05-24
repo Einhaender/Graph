@@ -1,7 +1,5 @@
 package einhaenderMath;
 
-import helper.MessageFrame;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -12,6 +10,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -61,13 +60,13 @@ public class GUIGraph extends JPanel {
 				txtError = txtError + "window bounds must be numbers; ";
 			}
 			if (!txtError.isEmpty()) {
-				new MessageFrame(txtError.substring(0, txtError.length() - 2), true);
+				JOptionPane.showMessageDialog(null, txtError.substring(0, txtError.length() - 2), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 			char[] temp = { 'x' };
 			try {
 				GUIGraph.this.eq = new Equation(GUIGraph.this.textEquation.getText(), temp);
 			} catch (Exception e1) {
-				new MessageFrame(e1.getMessage(), true);
+				JOptionPane.showMessageDialog(null, e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				e1.printStackTrace();
 			}
 			GUIGraph.this.graph();
@@ -142,7 +141,7 @@ public class GUIGraph extends JPanel {
 				thisY = this.eq.evaluate(pixelToGraphX(x));
 			} catch (Exception e) {
 				System.err.println("caught exeption during graphing... halting proccess.");
-				new MessageFrame(e.getMessage());
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 				break;
 			}
