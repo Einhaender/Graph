@@ -45,7 +45,8 @@ public class GUIGraph extends JPanel {
 		private listenerButtEvaluate() {
 		}
 		
-		// TODO try using java to compile equation as class with java.Math imported? auto replace sin(blah) with Math.sin if necessary.
+		// TODO try using java to compile equation as class with java.Math imported? auto replace sin(blah) with Math.sin if
+		// necessary.
 		public void actionPerformed(ActionEvent e) {
 			String txtError = "";
 			try {
@@ -136,7 +137,7 @@ public class GUIGraph extends JPanel {
 			e1.printStackTrace();
 		}
 		for (int x = 0; x <= this.frameGraphXSizeDONOTUSE + 1; x++) {
-			double thisY = 0.0D;
+			double thisY = 0.0;
 			try {
 				thisY = this.eq.evaluate(pixelToGraphX(x));
 			} catch (Exception e) {
