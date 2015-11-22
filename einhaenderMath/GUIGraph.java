@@ -15,60 +15,63 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class GUIGraph extends JPanel {
-  private static final long serialVersionUID	= 6812517344141364091L;
-  private JButton	    buttGraph;
-  private JPanel	    frameGraphSouth;
-  private JPanel	    frameInfo;
-  private JPanel	    frameInfoNorthLabels;
-  private JPanel	    frameInfoCenterFields;
-  private JLabel	    lblEquation;
-  private JLabel	    lblXMin;
-  private JLabel	    lblXMax;
-  private JLabel	    lblYMin;
-  private JLabel	    lblYMax;
-  private JTextField	    textEquation;
-  private JTextField	    textXMin;
-  private JTextField	    textXMax;
-  private JTextField	    textYMin;
-  private JTextField	    textYMax;
-  private double	    xMin;
-  private double	    xMax;
-  private double	    yMin;
-  private double	    yMax;
-  private int		    frameGraphXSizeDONOTUSE;
-  private int		    frameGraphYSizeDONOTUSE;
-  private Equation	    eq;
-  private final double[]    frameXValueDONOTUSE	= { 0.0D };
-  private final Color	    COLORBACKROUND	= Color.LIGHT_GRAY;
-  
+  private static final long serialVersionUID    = 6812517344141364091L;
+  private JButton           buttGraph;
+  private JPanel            frameGraphSouth;
+  private JPanel            frameInfo;
+  private JPanel            frameInfoNorthLabels;
+  private JPanel            frameInfoCenterFields;
+  private JLabel            lblEquation;
+  private JLabel            lblXMin;
+  private JLabel            lblXMax;
+  private JLabel            lblYMin;
+  private JLabel            lblYMax;
+  private JTextField        textEquation;
+  private JTextField        textXMin;
+  private JTextField        textXMax;
+  private JTextField        textYMin;
+  private JTextField        textYMax;
+  private double            xMin;
+  private double            xMax;
+  private double            yMin;
+  private double            yMax;
+  private int               frameGraphXSizeDONOTUSE;
+  private int               frameGraphYSizeDONOTUSE;
+  private Equation          eq;
+  private final double[]    frameXValueDONOTUSE = { 0.0D };
+  private final Color       COLORBACKROUND      = Color.LIGHT_GRAY;
+                                                
   private class listenerButtEvaluate implements ActionListener {
     private listenerButtEvaluate() {
     }
     
-    // TODO try using java to compile equation as class with java.Math imported? auto replace sin(blah) with Math.sin if
+    // TODO try using java to compile equation as class with java.Math imported? auto replace
+    // sin(blah) with Math.sin if
     // necessary.
     public void actionPerformed(ActionEvent e) {
       String txtError = "";
       try {
-	GUIGraph.this.xMin = Double.valueOf(GUIGraph.this.textXMin.getText()).doubleValue();
-	GUIGraph.this.xMax = Double.valueOf(GUIGraph.this.textXMax.getText()).doubleValue();
-	GUIGraph.this.yMin = Double.valueOf(GUIGraph.this.textYMin.getText()).doubleValue();
-	GUIGraph.this.yMax = Double.valueOf(GUIGraph.this.textYMax.getText()).doubleValue();
-	if ((GUIGraph.this.xMin >= GUIGraph.this.xMax) || (GUIGraph.this.yMin >= GUIGraph.this.yMax)) {
-	  txtError = txtError + "the maximum window bound must be greater than the minimum; ";
-	}
+        GUIGraph.this.xMin = Double.valueOf(GUIGraph.this.textXMin.getText()).doubleValue();
+        GUIGraph.this.xMax = Double.valueOf(GUIGraph.this.textXMax.getText()).doubleValue();
+        GUIGraph.this.yMin = Double.valueOf(GUIGraph.this.textYMin.getText()).doubleValue();
+        GUIGraph.this.yMax = Double.valueOf(GUIGraph.this.textYMax.getText()).doubleValue();
+        if ((GUIGraph.this.xMin >= GUIGraph.this.xMax)
+          || (GUIGraph.this.yMin >= GUIGraph.this.yMax)) {
+          txtError = txtError + "the maximum window bound must be greater than the minimum; ";
+        }
       } catch (Exception e2) {
-	txtError = txtError + "window bounds must be numbers; ";
+        txtError = txtError + "window bounds must be numbers; ";
       }
       if (!txtError.isEmpty()) {
-	JOptionPane.showMessageDialog(null, txtError.substring(0, txtError.length() - 2), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, txtError.substring(0, txtError.length() - 2), "Error",
+          JOptionPane.ERROR_MESSAGE);
       }
       char[] temp = { 'x' };
       try {
-	GUIGraph.this.eq = new Equation(GUIGraph.this.textEquation.getText(), temp);
+        GUIGraph.this.eq = new Equation(GUIGraph.this.textEquation.getText(), temp);
       } catch (Exception e1) {
-	JOptionPane.showMessageDialog(null, e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-	e1.printStackTrace();
+        JOptionPane.showMessageDialog(null, e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e1.printStackTrace();
       }
       GUIGraph.this.graph();
     }
@@ -106,10 +109,12 @@ public class GUIGraph extends JPanel {
     g.drawLine(0, originYCoord, this.frameGraphXSizeDONOTUSE, originYCoord);
     g.drawLine(0, originYCoord + 1, this.frameGraphXSizeDONOTUSE, originYCoord + 1);
     
-    g.drawLine(originXCoord - 1, valueToPixelY(this.yMin), originXCoord - 1, valueToPixelY(this.yMax));
+    g.drawLine(originXCoord - 1, valueToPixelY(this.yMin), originXCoord - 1,
+      valueToPixelY(this.yMax));
     g.drawLine(originXCoord, valueToPixelY(this.yMin), originXCoord, valueToPixelY(this.yMax));
-    g.drawLine(originXCoord + 1, valueToPixelY(this.yMin), originXCoord + 1, valueToPixelY(this.yMax));
-    
+    g.drawLine(originXCoord + 1, valueToPixelY(this.yMin), originXCoord + 1,
+      valueToPixelY(this.yMax));
+      
     g.setColor(c);
   }
   
@@ -139,12 +144,12 @@ public class GUIGraph extends JPanel {
     for (int x = 0; x <= this.frameGraphXSizeDONOTUSE + 1; x++) {
       double thisY = 0.0;
       try {
-	thisY = this.eq.evaluate(pixelToGraphX(x));
+        thisY = this.eq.evaluate(pixelToGraphX(x));
       } catch (Exception e) {
-	System.err.println("caught exeption during graphing... halting proccess.");
-	JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-	e.printStackTrace();
-	break;
+        System.err.println("caught exeption during graphing... halting proccess.");
+        JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+        break;
       }
       g.drawLine(x - 1, valueToPixelY(lastY), x, valueToPixelY(thisY));
       lastY = thisY;
@@ -152,7 +157,8 @@ public class GUIGraph extends JPanel {
   }
   
   private double[] pixelToGraphX(int x) {
-    this.frameXValueDONOTUSE[0] = ((this.xMax - this.xMin) / this.frameGraphXSizeDONOTUSE * x + this.xMin);
+    this.frameXValueDONOTUSE[0] = ((this.xMax - this.xMin) / this.frameGraphXSizeDONOTUSE * x
+      + this.xMin);
     return this.frameXValueDONOTUSE;
   }
   
