@@ -15,48 +15,22 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class GUIGraph extends JPanel {
-  private static final long serialVersionUID    = 6812517344141364091L;
-  private JButton           buttGraph;
-  private JPanel            frameGraphSouth;
-  private JPanel            frameInfo;
-  private JPanel            frameInfoNorthLabels;
-  private JPanel            frameInfoCenterFields;
-  private JLabel            lblEquation;
-  private JLabel            lblXMin;
-  private JLabel            lblXMax;
-  private JLabel            lblYMin;
-  private JLabel            lblYMax;
-  private JTextField        textEquation;
-  private JTextField        textXMin;
-  private JTextField        textXMax;
-  private JTextField        textYMin;
-  private JTextField        textYMax;
-  private double            xMin;
-  private double            xMax;
-  private double            yMin;
-  private double            yMax;
-  private int               frameGraphXSizeDONOTUSE;
-  private int               frameGraphYSizeDONOTUSE;
-  private Equation          eq;
-  private final double[]    frameXValueDONOTUSE = { 0.0D };
-  private final Color       COLORBACKROUND      = Color.LIGHT_GRAY;
-                                                
   private class listenerButtEvaluate implements ActionListener {
     private listenerButtEvaluate() {
     }
-    
+
     // TODO try using java to compile equation as class with java.Math imported? auto replace
     // sin(blah) with Math.sin if
     // necessary.
+    @Override
     public void actionPerformed(ActionEvent e) {
       String txtError = "";
       try {
-        GUIGraph.this.xMin = Double.valueOf(GUIGraph.this.textXMin.getText()).doubleValue();
-        GUIGraph.this.xMax = Double.valueOf(GUIGraph.this.textXMax.getText()).doubleValue();
-        GUIGraph.this.yMin = Double.valueOf(GUIGraph.this.textYMin.getText()).doubleValue();
-        GUIGraph.this.yMax = Double.valueOf(GUIGraph.this.textYMax.getText()).doubleValue();
-        if ((GUIGraph.this.xMin >= GUIGraph.this.xMax)
-          || (GUIGraph.this.yMin >= GUIGraph.this.yMax)) {
+        xMin = Double.valueOf(textXMin.getText()).doubleValue();
+        xMax = Double.valueOf(textXMax.getText()).doubleValue();
+        yMin = Double.valueOf(textYMin.getText()).doubleValue();
+        yMax = Double.valueOf(textYMax.getText()).doubleValue();
+        if ((xMin >= xMax) || (yMin >= yMax)) {
           txtError = txtError + "the maximum window bound must be greater than the minimum; ";
         }
       } catch (Exception e2) {
@@ -68,14 +42,16 @@ public class GUIGraph extends JPanel {
       }
       char[] temp = { 'x' };
       try {
-        GUIGraph.this.eq = new Equation(GUIGraph.this.textEquation.getText(), temp);
+        eq = new Equation(textEquation.getText(), temp);
       } catch (Exception e1) {
         JOptionPane.showMessageDialog(null, e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e1.printStackTrace();
       }
-      GUIGraph.this.graph();
+      graph();
     }
   }
+  
+  private static final long serialVersionUID = 6812517344141364091L;
   
   public static void main(String[] args) {
     JFrame frame = new JFrame("Graph");
@@ -86,65 +62,90 @@ public class GUIGraph extends JPanel {
     frame.setVisible(true);
   }
   
+  private JButton        buttGraph;
+  private final Color    COLORBACKROUND      = Color.LIGHT_GRAY;
+  private Equation       eq;
+  private JPanel         frameGraphSouth;
+  private int            frameGraphXSizeDONOTUSE;
+  private int            frameGraphYSizeDONOTUSE;
+  private JPanel         frameInfo;
+  private JPanel         frameInfoCenterFields;
+  private JPanel         frameInfoNorthLabels;
+  private final double[] frameXValueDONOTUSE = { 0.0D };
+  private JLabel         lblEquation;
+  private JLabel         lblXMax;
+  private JLabel         lblXMin;
+  private JLabel         lblYMax;
+  private JLabel         lblYMin;
+  private JTextField     textEquation;
+  private JTextField     textXMax;
+  private JTextField     textXMin;
+  private JTextField     textYMax;
+  private JTextField     textYMin;
+  private double         xMax;
+  private double         xMin;
+                         
+  private double         yMax;
+                         
+  private double         yMin;
+                         
   public GUIGraph() {
     setLayout(new BorderLayout());
-    
+
     setupFrameGraphCenter();
-    add(this.frameGraphSouth, "Center");
-    
+    add(frameGraphSouth, "Center");
+
     setupFrameInfo();
-    add(this.frameInfo, "North");
+    add(frameInfo, "North");
   }
-  
+
   private void drawAxis(Graphics g) {
-    double yAxisxPercent = (0.0D - this.xMin) / (this.xMax - this.xMin);
-    
+    double yAxisxPercent = (0.0D - xMin) / (xMax - xMin);
+
     int originYCoord = valueToPixelY(0.0D);
-    int originXCoord = (int) (yAxisxPercent * this.frameGraphXSizeDONOTUSE);
-    
+    int originXCoord = (int) (yAxisxPercent * frameGraphXSizeDONOTUSE);
+
     Color c = g.getColor();
     g.setColor(Color.ORANGE);
+
+    g.drawLine(0, originYCoord - 1, frameGraphXSizeDONOTUSE, originYCoord - 1);
+    g.drawLine(0, originYCoord, frameGraphXSizeDONOTUSE, originYCoord);
+    g.drawLine(0, originYCoord + 1, frameGraphXSizeDONOTUSE, originYCoord + 1);
+
+    g.drawLine(originXCoord - 1, valueToPixelY(yMin), originXCoord - 1, valueToPixelY(yMax));
+    g.drawLine(originXCoord, valueToPixelY(yMin), originXCoord, valueToPixelY(yMax));
+    g.drawLine(originXCoord + 1, valueToPixelY(yMin), originXCoord + 1, valueToPixelY(yMax));
     
-    g.drawLine(0, originYCoord - 1, this.frameGraphXSizeDONOTUSE, originYCoord - 1);
-    g.drawLine(0, originYCoord, this.frameGraphXSizeDONOTUSE, originYCoord);
-    g.drawLine(0, originYCoord + 1, this.frameGraphXSizeDONOTUSE, originYCoord + 1);
-    
-    g.drawLine(originXCoord - 1, valueToPixelY(this.yMin), originXCoord - 1,
-      valueToPixelY(this.yMax));
-    g.drawLine(originXCoord, valueToPixelY(this.yMin), originXCoord, valueToPixelY(this.yMax));
-    g.drawLine(originXCoord + 1, valueToPixelY(this.yMin), originXCoord + 1,
-      valueToPixelY(this.yMax));
-      
     g.setColor(c);
   }
-  
+
   private void graph() {
-    this.frameGraphXSizeDONOTUSE = this.frameGraphSouth.getSize().width;
-    this.frameGraphYSizeDONOTUSE = this.frameGraphSouth.getSize().height;
-    Graphics g = this.frameGraphSouth.getGraphics();
-    g.setColor(this.COLORBACKROUND);
-    g.fillRect(0, 0, this.frameGraphXSizeDONOTUSE, this.frameGraphYSizeDONOTUSE);
+    frameGraphXSizeDONOTUSE = frameGraphSouth.getSize().width;
+    frameGraphYSizeDONOTUSE = frameGraphSouth.getSize().height;
+    Graphics g = frameGraphSouth.getGraphics();
+    g.setColor(COLORBACKROUND);
+    g.fillRect(0, 0, frameGraphXSizeDONOTUSE, frameGraphYSizeDONOTUSE);
     g.setColor(Color.BLACK);
-    
+
     drawAxis(g);
-    
+
     char[] tempVars = { 'x' };
     try {
-      this.eq = new Equation(this.textEquation.getText(), tempVars);
+      eq = new Equation(textEquation.getText(), tempVars);
     } catch (Exception e1) {
       System.out.println("caught exeption when initiating pixel -1; ignoring...");
       e1.printStackTrace();
     }
     double lastY = 0.0D;
     try {
-      lastY = this.eq.evaluate(pixelToGraphX(-1));
+      lastY = eq.evaluate(pixelToGraphX(-1));
     } catch (Exception e1) {
       e1.printStackTrace();
     }
-    for (int x = 0; x <= this.frameGraphXSizeDONOTUSE + 1; x++) {
+    for (int x = 0; x <= frameGraphXSizeDONOTUSE + 1; x++) {
       double thisY = 0.0;
       try {
-        thisY = this.eq.evaluate(pixelToGraphX(x));
+        thisY = eq.evaluate(pixelToGraphX(x));
       } catch (Exception e) {
         System.err.println("caught exeption during graphing... halting proccess.");
         JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -155,69 +156,68 @@ public class GUIGraph extends JPanel {
       lastY = thisY;
     }
   }
-  
+
   private double[] pixelToGraphX(int x) {
-    this.frameXValueDONOTUSE[0] = ((this.xMax - this.xMin) / this.frameGraphXSizeDONOTUSE * x
-      + this.xMin);
-    return this.frameXValueDONOTUSE;
+    frameXValueDONOTUSE[0] = ((xMax - xMin) / frameGraphXSizeDONOTUSE * x + xMin);
+    return frameXValueDONOTUSE;
   }
-  
+
   private void setupFrameGraphCenter() {
-    this.frameGraphSouth = new JPanel();
-    this.frameGraphSouth.setSize(500, 500);
-    this.frameGraphSouth.setBackground(this.COLORBACKROUND);
+    frameGraphSouth = new JPanel();
+    frameGraphSouth.setSize(500, 500);
+    frameGraphSouth.setBackground(COLORBACKROUND);
   }
-  
+
   private void setupFrameInfo() {
-    this.frameInfo = new JPanel();
-    this.frameInfo.setLayout(new BorderLayout());
-    
-    this.frameInfoNorthLabels = new JPanel();
-    this.frameInfoNorthLabels.setLayout(new FlowLayout());
-    
-    this.lblEquation = new JLabel("Equation");
-    this.frameInfoNorthLabels.add(this.lblEquation);
-    
-    this.lblXMin = new JLabel("X Min");
-    this.frameInfoNorthLabels.add(this.lblXMin);
-    
-    this.lblXMax = new JLabel("X Max");
-    this.frameInfoNorthLabels.add(this.lblXMax);
-    
-    this.lblYMin = new JLabel("Y Min");
-    this.frameInfoNorthLabels.add(this.lblYMin);
-    
-    this.lblYMax = new JLabel("Y Max");
-    this.frameInfoNorthLabels.add(this.lblYMax);
-    
-    this.frameInfoCenterFields = new JPanel();
-    this.frameInfoCenterFields.setLayout(new FlowLayout());
-    
-    this.textEquation = new JTextField(10);
-    this.frameInfoCenterFields.add(this.textEquation);
-    
-    this.textXMin = new JTextField("-10", 3);
-    this.frameInfoCenterFields.add(this.textXMin);
-    
-    this.textXMax = new JTextField("10", 3);
-    this.frameInfoCenterFields.add(this.textXMax);
-    
-    this.textYMin = new JTextField("-10", 3);
-    this.frameInfoCenterFields.add(this.textYMin);
-    
-    this.textYMax = new JTextField("10", 3);
-    this.frameInfoCenterFields.add(this.textYMax);
-    
-    this.frameInfo.add(this.frameInfoNorthLabels, "North");
-    this.frameInfo.add(this.frameInfoCenterFields, "Center");
-    
-    this.buttGraph = new JButton("graph");
-    this.buttGraph.addActionListener(new listenerButtEvaluate());
-    this.buttGraph.setVerticalAlignment(0);
-    this.frameInfo.add(this.buttGraph, "East");
+    frameInfo = new JPanel();
+    frameInfo.setLayout(new BorderLayout());
+
+    frameInfoNorthLabels = new JPanel();
+    frameInfoNorthLabels.setLayout(new FlowLayout());
+
+    lblEquation = new JLabel("Equation");
+    frameInfoNorthLabels.add(lblEquation);
+
+    lblXMin = new JLabel("X Min");
+    frameInfoNorthLabels.add(lblXMin);
+
+    lblXMax = new JLabel("X Max");
+    frameInfoNorthLabels.add(lblXMax);
+
+    lblYMin = new JLabel("Y Min");
+    frameInfoNorthLabels.add(lblYMin);
+
+    lblYMax = new JLabel("Y Max");
+    frameInfoNorthLabels.add(lblYMax);
+
+    frameInfoCenterFields = new JPanel();
+    frameInfoCenterFields.setLayout(new FlowLayout());
+
+    textEquation = new JTextField(10);
+    frameInfoCenterFields.add(textEquation);
+
+    textXMin = new JTextField("-10", 3);
+    frameInfoCenterFields.add(textXMin);
+
+    textXMax = new JTextField("10", 3);
+    frameInfoCenterFields.add(textXMax);
+
+    textYMin = new JTextField("-10", 3);
+    frameInfoCenterFields.add(textYMin);
+
+    textYMax = new JTextField("10", 3);
+    frameInfoCenterFields.add(textYMax);
+
+    frameInfo.add(frameInfoNorthLabels, "North");
+    frameInfo.add(frameInfoCenterFields, "Center");
+
+    buttGraph = new JButton("graph");
+    buttGraph.addActionListener(new listenerButtEvaluate());
+    buttGraph.setVerticalAlignment(0);
+    frameInfo.add(buttGraph, "East");
   }
-  
+
   private int valueToPixelY(double yValue) {
-    return (int) (this.frameGraphYSizeDONOTUSE / (this.yMin - this.yMax) * (yValue - this.yMax));
+    return (int) (frameGraphYSizeDONOTUSE / (yMin - yMax) * (yValue - yMax));
   }
 }
