@@ -21,7 +21,7 @@ public class Equation {
   // TODO these had warning "unused". are they relics of an older version?
   private static final int      TERMTYPEUNKNOWN          = 0;
   private static final int      TERMTYPEVARIABLE         = 5;
-
+                                                         
   public static boolean containsChar(String s, char c) {
     for (int x = 0; x < s.length(); x++) {
       if (s.charAt(x) == c) {
@@ -118,13 +118,7 @@ public class Equation {
     }
     return false;
   }
-
-  public static void main(String[] args) throws Exception {
-    char[] cArry = { 'x' };
-    Equation e = new Equation("(x-123)(x+3)", cArry);
-    e.log.fine(e.equationReformated);
-  }
-
+  
   private String       equationOrigional;
                        
   private String       equationReformated;
@@ -140,19 +134,19 @@ public class Equation {
   public Equation(char[] variables) throws Exception {
     this("0", variables);
   }
-
+  
   public Equation(String equation, char[] variables) throws Exception {
     equationOrigional = equation;
     equationReformated = equation;
     this.variables = variables;
-    log = new PrettyLogger(getClass(), logLevel, true);
+    log = PrettyLogger.getPrimaryLogger();
     log.setLevel(logLevel);
     reformat();
   }
-
+  
   public double evaluate(double[] values) throws Exception {
     printPrefix = "";
-
+    
     String tempEq = equationReformated;
     for (int x = 0; x < variables.length; x++) {
       for (int s = 0; s < tempEq.length(); s++) {
@@ -164,7 +158,7 @@ public class Equation {
     log.fine("Evaluating... " + equationReformated + "=>" + tempEq + "...");
     return evaluateStri(tempEq);
   }
-
+  
   private double evaluateArithmetic(String eq) throws Exception {
     log.finest(printPrefix + "doing arithmetic");
     for (int x = 0; x < eq.length(); x++) {
@@ -189,7 +183,7 @@ public class Equation {
     }
     throw new Error("tried to evaluate a non-existant plus or minus");
   }
-
+  
   private double evaluateExponent(String eq) throws Exception {
     log.finest(printPrefix + "doing exponent");
     for (int x = 0; x < eq.length(); x++) {
@@ -206,7 +200,7 @@ public class Equation {
     }
     throw new Error("tried to evaluate a non-existant  exponent");
   }
-
+  
   private double evaluateMultDevi(String eq) throws Exception {
     log.finest(printPrefix + "doing multiplication||division on " + eq);
     for (int x = 0; x < eq.length(); x++) {
@@ -231,7 +225,7 @@ public class Equation {
     }
     throw new Error("there wasn't a multiplication||division sign in " + eq);
   }
-
+  
   private double evaluatePare(String eq) throws Exception {
     log.finest(printPrefix + "doing parenthesis on " + eq);
     int[] x = findInnerParenthesis(eq);
@@ -242,7 +236,7 @@ public class Equation {
     String rtrn = beforeP + String.valueOf(insidePF) + afterP;
     return evaluateStri(rtrn);
   }
-
+  
   private double evaluateStri(String eq) throws Exception {
     printPrefix = (" " + printPrefix);
     log.finer(printPrefix + "Evaluateing partial equation \"" + eq + "\"");
@@ -283,11 +277,11 @@ public class Equation {
         .toUpperCase());
     return Double.valueOf(eq).doubleValue();
   }
-
+  
   private int findChar(char c) {
     return findChar(c, 0);
   }
-
+  
   private int findChar(char c, int start) {
     for (int x = start + 1; x < equationReformated.length(); x++) {
       if (equationReformated.charAt(x) == c) {
@@ -296,11 +290,11 @@ public class Equation {
     }
     return -1;
   }
-
+  
   public String getEquation() {
     return equationReformated;
   }
-
+  
   private int[] getTermAt(String eq, int i) {
     int[] term = { i, i };
     boolean found = false;
@@ -351,7 +345,7 @@ public class Equation {
     }
     return term;
   }
-
+  
   private int getTermType(String eq, int i) {
     char c = eq.charAt(i);
     if ((c >= '0') && (c <= '9')) {
@@ -378,11 +372,11 @@ public class Equation {
     }
     return 0;
   }
-
+  
   public char[] getVariables() {
     return variables;
   }
-
+  
   @Deprecated
   public boolean hasDivisionOrMultiplication() {
     for (int x = 0; x < equationReformated.length(); x++) {
@@ -392,7 +386,7 @@ public class Equation {
     }
     return false;
   }
-
+  
   public boolean hasMultiplicationOrDivision() {
     boolean has = false;
     for (int c = 0; c < equationReformated.length(); c++) {
@@ -402,7 +396,7 @@ public class Equation {
     }
     return has;
   }
-
+  
   @Deprecated
   public boolean hasParenthis() {
     boolean has = false;
@@ -413,7 +407,7 @@ public class Equation {
     }
     return has;
   }
-
+  
   private boolean needsMultiplicationRight(int currLoc) {
     int typeThis = getTermType(equationReformated, currLoc);
     int typeRight = getTermType(equationReformated, currLoc + 1);
@@ -428,7 +422,7 @@ public class Equation {
     }
     return true;
   }
-
+  
   private void reformat() throws Exception {
     equationReformated = equationReformated.trim();
     for (int x = 0; x < equationReformated.length(); x++) {
@@ -467,12 +461,12 @@ public class Equation {
       }
     }
   }
-
+  
   public void setEquation(String equation) throws Exception {
     equationReformated = equation;
     reformat();
   }
-
+  
   @Override
   public String toString() {
     String allVars = "";
