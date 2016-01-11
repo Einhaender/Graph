@@ -1,3 +1,22 @@
+// This file is part of AGE
+//
+// AGE Graphs Equations (AGE) is a collection of small java programs
+// Copyright (C) 2016 Ivan Johnson:
+// fire.4@cox.net
+//
+// AGE is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 package einhaenderMath;
 
 import java.awt.BorderLayout;
@@ -175,7 +194,7 @@ public class GUIGraph extends JPanel {
     try {
       eq = new Equation(textEquation.getText(), tempVars);
     } catch (Exception e1) {
-      System.out.println("caught exeption when initiating pixel -1; ignoring...");
+      log.warning("caught exeption when initiating pixel -1; ignoring...");
       e1.printStackTrace();
     }
     double lastY = 0.0D;
@@ -189,7 +208,7 @@ public class GUIGraph extends JPanel {
       try {
         thisY = eq.evaluate(pixelToGraphX(x));
       } catch (Exception e) {
-        System.err.println("caught exeption during graphing... halting proccess.");
+        log.severe("caught exeption during graphing... halting proccess.");
         JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
         break;
