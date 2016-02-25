@@ -27,7 +27,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.File;
 import java.util.logging.Level;
 
 import javax.swing.JButton;
@@ -68,11 +67,13 @@ public class GUIGraph extends JPanel {
       String[] temp = { "x" };
       try {
         eq = new Equation(textEquation.getText(), temp);
+        graph();
       } catch (Exception e1) {
-        JOptionPane.showMessageDialog(null, e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        e1.printStackTrace();
+        log.log(Level.WARNING,
+          "Could not parse equation. Exception message: \"" + e1.getMessage() + "\"", e);
+        JOptionPane.showMessageDialog(null, e1.getMessage(), "Error: could not parse equation",
+          JOptionPane.ERROR_MESSAGE);
       }
-      graph();
     }
   }
   
@@ -117,6 +118,7 @@ public class GUIGraph extends JPanel {
       }
     });
     frame.setVisible(true);
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> log.close()));
   }
   
   private JButton            buttGraph;
@@ -189,26 +191,16 @@ public class GUIGraph extends JPanel {
     drawAxis(g);
     
     String[] tempVars = { "x" };
-    try {
-      eq = new Equation(textEquation.getText(), tempVars);
-    } catch (Exception e1) {
-      log.warning("caught exeption when initiating pixel -1; ignoring...");
-      e1.printStackTrace();
-    }
+    eq = new Equation(textEquation.getText(), tempVars);
     double lastY = 0.0D;
-    try {
-      lastY = eq.evaluate(pixelToGraphX(-1));
-    } catch (Exception e1) {
-      e1.printStackTrace();
-    }
+    lastY = eq.evaluate(pixelToGraphX(-1));
     for (int x = 0; x <= frameGraphXSizeDONOTUSE + 1; x++) {
       double thisY = 0.0;
       try {
         thisY = eq.evaluate(pixelToGraphX(x));
       } catch (Exception e) {
-        log.severe("caught exeption during graphing... halting proccess.");
         JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace();
+        log.log(Level.WARNING, "caught exeption during graphing... halting proccess.", e);
         break;
       }
       g.drawLine(x - 1, valueToPixelY(lastY), x, valueToPixelY(thisY));
