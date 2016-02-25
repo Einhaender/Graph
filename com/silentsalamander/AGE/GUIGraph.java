@@ -37,8 +37,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import helper.FileManagement;
-import helper.PrettyLogger;
+import com.silentsalamander.helper.PrettyLogger;
+import com.silentsalamander.helper.equation.Equation;
 
 public class GUIGraph extends JPanel {
   private class listenerButtEvaluate implements ActionListener {
@@ -65,7 +65,7 @@ public class GUIGraph extends JPanel {
         JOptionPane.showMessageDialog(null, txtError.substring(0, txtError.length() - 2), "Error",
           JOptionPane.ERROR_MESSAGE);
       }
-      char[] temp = { 'x' };
+      String[] temp = { "x" };
       try {
         eq = new Equation(textEquation.getText(), temp);
       } catch (Exception e1) {
@@ -79,8 +79,6 @@ public class GUIGraph extends JPanel {
   private static final long serialVersionUID = 6812517344141364091L;
   
   public static void main(String[] args) {
-    PrettyLogger.initiatePrimaryLogger(GUIGraph.class.getName(), Level.FINER,
-      FileManagement.getWorkingDirectory(GUIGraph.class.getName()) + "Logs" + File.separatorChar);
     log = PrettyLogger.getPrimaryLogger();
     JFrame frame = new JFrame("Graph");
     frame.setSize(500, 600);
@@ -190,7 +188,7 @@ public class GUIGraph extends JPanel {
     
     drawAxis(g);
     
-    char[] tempVars = { 'x' };
+    String[] tempVars = { "x" };
     try {
       eq = new Equation(textEquation.getText(), tempVars);
     } catch (Exception e1) {
