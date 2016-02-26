@@ -25,8 +25,6 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.logging.Level;
 
 import javax.swing.JButton;
@@ -35,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import com.silentsalamander.helper.PrettyLogger;
 import com.silentsalamander.helper.equation.Equation;
@@ -64,8 +63,8 @@ public class GUIGraph extends JPanel {
         JOptionPane.showMessageDialog(null, txtError.substring(0, txtError.length() - 2), "Error",
           JOptionPane.ERROR_MESSAGE);
       }
-      String[] temp = { "x" };
       try {
+        String[] temp = { "x" };
         eq = new Equation(textEquation.getText(), temp);
         graph();
       } catch (Exception e1) {
@@ -84,41 +83,13 @@ public class GUIGraph extends JPanel {
     JFrame frame = new JFrame("Graph");
     frame.setSize(500, 600);
     frame.setLocation(100, 20);
-    frame.setDefaultCloseOperation(3);
-    frame.setContentPane(new GUIGraph());
-    frame.addWindowListener(new WindowListener() {
-      @Override
-      public void windowOpened(WindowEvent e) {
-      }
-      
-      @Override
-      public void windowIconified(WindowEvent e) {
-      }
-      
-      @Override
-      public void windowDeiconified(WindowEvent e) {
-      }
-      
-      @Override
-      public void windowDeactivated(WindowEvent e) {
-      }
-      
-      @Override
-      public void windowClosing(WindowEvent e) {
-      }
-      
-      @Override
-      public void windowClosed(WindowEvent e) {
-        log.info("closing logger.");
-        log.close();
-      }
-      
-      @Override
-      public void windowActivated(WindowEvent e) {
-      }
-    });
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    GUIGraph graph = new GUIGraph();
+    frame.setContentPane(graph);
     frame.setVisible(true);
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> log.close()));
+    // graph.drawAxis(frame.getGraphics());
+    
+    SwingUtilities.invokeLater(() -> graph.repaint());
   }
   
   private JButton            buttGraph;
@@ -141,13 +112,10 @@ public class GUIGraph extends JPanel {
   private JTextField         textXMin;
   private JTextField         textYMax;
   private JTextField         textYMin;
-  private double             xMax;
-  private double             xMin;
-                             
-  private double             yMax;
-                             
-  private double             yMin;
-                             
+  private double             xMax                = 10;
+  private double             xMin                = -10;
+  private double             yMax                = 10;
+  private double             yMin                = -10;
   public static PrettyLogger log;
                              
   public GUIGraph() {
@@ -181,31 +149,34 @@ public class GUIGraph extends JPanel {
   }
   
   private void graph() {
-    frameGraphXSizeDONOTUSE = frameGraphSouth.getSize().width;
-    frameGraphYSizeDONOTUSE = frameGraphSouth.getSize().height;
-    Graphics g = frameGraphSouth.getGraphics();
-    g.setColor(COLORBACKROUND);
-    g.fillRect(0, 0, frameGraphXSizeDONOTUSE, frameGraphYSizeDONOTUSE);
-    g.setColor(Color.BLACK);
-    
-    drawAxis(g);
-    
-    String[] tempVars = { "x" };
-    eq = new Equation(textEquation.getText(), tempVars);
-    double lastY = 0.0D;
-    lastY = eq.evaluate(pixelToGraphX(-1));
-    for (int x = 0; x <= frameGraphXSizeDONOTUSE + 1; x++) {
-      double thisY = 0.0;
-      try {
-        thisY = eq.evaluate(pixelToGraphX(x));
-      } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        log.log(Level.WARNING, "caught exeption during graphing... halting proccess.", e);
-        break;
+    SwingUtilities.invokeLater(() -> {
+      frameGraphXSizeDONOTUSE = frameGraphSouth.getSize().width;
+      frameGraphYSizeDONOTUSE = frameGraphSouth.getSize().height;
+      if (eq == null)
+        return;
+        
+      Graphics g = frameGraphSouth.getGraphics();
+      g.setColor(COLORBACKROUND);
+      g.fillRect(0, 0, frameGraphXSizeDONOTUSE, frameGraphYSizeDONOTUSE);
+      g.setColor(Color.BLACK);
+      
+      drawAxis(g);
+      
+      double lastY = 0.0D;
+      lastY = eq.evaluate(pixelToGraphX(-1));
+      for (int x = 0; x <= frameGraphXSizeDONOTUSE + 1; x++) {
+        double thisY = 0.0;
+        try {
+          thisY = eq.evaluate(pixelToGraphX(x));
+        } catch (Exception e) {
+          JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+          log.log(Level.WARNING, "caught exeption during graphing... halting proccess.", e);
+          break;
+        }
+        g.drawLine(x - 1, valueToPixelY(lastY), x, valueToPixelY(thisY));
+        lastY = thisY;
       }
-      g.drawLine(x - 1, valueToPixelY(lastY), x, valueToPixelY(thisY));
-      lastY = thisY;
-    }
+    });
   }
   
   private double[] pixelToGraphX(int x) {
@@ -270,5 +241,19 @@ public class GUIGraph extends JPanel {
   
   private int valueToPixelY(double yValue) {
     return (int) (frameGraphYSizeDONOTUSE / (yMin - yMax) * (yValue - yMax));
+  }
+  
+  @Override
+  public void repaint() {
+    super.repaint();
+    SwingUtilities.invokeLater(() -> {
+      if (frameGraphSouth == null)
+        return;
+      Graphics g = frameGraphSouth.getGraphics();
+      if (g != null) {
+        drawAxis(g);
+        graph();
+      }
+    });
   }
 }
