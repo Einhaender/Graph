@@ -84,12 +84,18 @@ public class GUIGraph extends JPanel {
     frame.setSize(500, 600);
     frame.setLocation(100, 20);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    GUIGraph graph = new GUIGraph();
+    final GUIGraph graph = new GUIGraph();
     frame.setContentPane(graph);
     frame.setVisible(true);
-    // graph.drawAxis(frame.getGraphics());
     
-    SwingUtilities.invokeLater(() -> graph.repaint());
+    // won't do this until java 1.8 is more popular, I guess...
+    // SwingUtilities.invokeLater(() -> graph.repaint());
+    SwingUtilities.invokeLater(new Runnable() {
+      @Override
+      public void run() {
+        graph.repaint();
+      }
+    });
   }
   
   private JButton            buttGraph;
@@ -117,7 +123,7 @@ public class GUIGraph extends JPanel {
   private double             yMax                = 10;
   private double             yMin                = -10;
   public static PrettyLogger log;
-                             
+  
   public GUIGraph() {
     setLayout(new BorderLayout());
     
@@ -149,32 +155,36 @@ public class GUIGraph extends JPanel {
   }
   
   private void graph() {
-    SwingUtilities.invokeLater(() -> {
-      frameGraphXSizeDONOTUSE = frameGraphSouth.getSize().width;
-      frameGraphYSizeDONOTUSE = frameGraphSouth.getSize().height;
-      if (eq == null)
-        return;
+    // SwingUtilities.invokeLater(() -> {//this only works in java 1.8 so I guess I won't use it :(
+    SwingUtilities.invokeLater(new Runnable() {
+      @Override
+      public void run() {
+        frameGraphXSizeDONOTUSE = frameGraphSouth.getSize().width;
+        frameGraphYSizeDONOTUSE = frameGraphSouth.getSize().height;
+        if (eq == null)
+          return;
         
-      Graphics g = frameGraphSouth.getGraphics();
-      g.setColor(COLORBACKROUND);
-      g.fillRect(0, 0, frameGraphXSizeDONOTUSE, frameGraphYSizeDONOTUSE);
-      g.setColor(Color.BLACK);
-      
-      drawAxis(g);
-      
-      double lastY = 0.0D;
-      lastY = eq.evaluate(pixelToGraphX(-1));
-      for (int x = 0; x <= frameGraphXSizeDONOTUSE + 1; x++) {
-        double thisY = 0.0;
-        try {
-          thisY = eq.evaluate(pixelToGraphX(x));
-        } catch (Exception e) {
-          JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-          log.log(Level.WARNING, "caught exeption during graphing... halting proccess.", e);
-          break;
+        Graphics g = frameGraphSouth.getGraphics();
+        g.setColor(COLORBACKROUND);
+        g.fillRect(0, 0, frameGraphXSizeDONOTUSE, frameGraphYSizeDONOTUSE);
+        g.setColor(Color.BLACK);
+        
+        drawAxis(g);
+        
+        double lastY = 0.0D;
+        lastY = eq.evaluate(pixelToGraphX(-1));
+        for (int x = 0; x <= frameGraphXSizeDONOTUSE + 1; x++) {
+          double thisY = 0.0;
+          try {
+            thisY = eq.evaluate(pixelToGraphX(x));
+          } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            log.log(Level.WARNING, "caught exeption during graphing... halting proccess.", e);
+            break;
+          }
+          g.drawLine(x - 1, valueToPixelY(lastY), x, valueToPixelY(thisY));
+          lastY = thisY;
         }
-        g.drawLine(x - 1, valueToPixelY(lastY), x, valueToPixelY(thisY));
-        lastY = thisY;
       }
     });
   }
@@ -246,13 +256,17 @@ public class GUIGraph extends JPanel {
   @Override
   public void repaint() {
     super.repaint();
-    SwingUtilities.invokeLater(() -> {
-      if (frameGraphSouth == null)
-        return;
-      Graphics g = frameGraphSouth.getGraphics();
-      if (g != null) {
-        drawAxis(g);
-        graph();
+    // SwingUtilities.invokeLater(() -> {
+    SwingUtilities.invokeLater(new Runnable() {
+      @Override
+      public void run() {
+        if (frameGraphSouth == null)
+          return;
+        Graphics g = frameGraphSouth.getGraphics();
+        if (g != null) {
+          drawAxis(g);
+          graph();
+        }
       }
     });
   }
