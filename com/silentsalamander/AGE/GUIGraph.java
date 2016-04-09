@@ -43,8 +43,6 @@ public class GUIGraph extends JPanel {
     private listenerButtEvaluate() {
     }
     
-    // TODO try using java to compile equation as class with java.Math imported? auto replace
-    // sin(blah) with Math.sin if necessary.
     @Override
     public void actionPerformed(ActionEvent e) {
       String txtError = "";
@@ -254,20 +252,11 @@ public class GUIGraph extends JPanel {
   }
   
   @Override
-  public void repaint() {
-    super.repaint();
-    // SwingUtilities.invokeLater(() -> {
-    SwingUtilities.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        if (frameGraphSouth == null)
-          return;
-        Graphics g = frameGraphSouth.getGraphics();
-        if (g != null) {
-          drawAxis(g);
-          graph();
-        }
-      }
-    });
+  protected void paintComponent(Graphics g) {
+    super.paintComponent(g);
+    if (frameGraphSouth == null)
+      return;
+    drawAxis(g);
+    graph();
   }
 }
