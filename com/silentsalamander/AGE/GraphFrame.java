@@ -43,17 +43,19 @@ import com.silentsalamander.helper.equation.Equation;
 public class GraphFrame extends JFrame {
   // TODO
   
-  // fix the current issue with duplicate names after removing out of order...
-  
-  // allow renaming equations. This will involve checking for duplicate names on name change and
-  // equation add. Will probably be forced to leave missing names if removing out of order.
-  
-  // allow one equation to call another
-  
-  // options. esp. radian or degree mode.
-  
   // graph equations in different colors (maybe option to display a drop-down selection for each
   // equation?)
+  
+  // options. esp. radian or degree mode (Complete SettingsFrame w/ config? separate tab? mix?)
+  
+  // AboutFrame
+  
+  // tick marks, even when axis off screen (labeled?)
+  
+  // allow renaming equations. This will involve checking for duplicate names on name change and
+  // equation add. Leave names unchanged, but disable them as global variables?
+  // fix the current issue with duplicate names after removing out of order...
+  
   
   protected static PrettyLogger log;
   private static final long     serialVersionUID = 2266856448062439731L;
