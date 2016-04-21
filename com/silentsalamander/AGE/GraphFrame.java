@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
 package com.silentsalamander.AGE;
 
 import java.awt.BorderLayout;
@@ -149,6 +148,8 @@ public class GraphFrame extends JFrame {
       equationName.add(new JLabel(((char) ('a' - 1 + equationText.size())) + "(x)"));
       equationName.get(equationName.size() - 1).setHorizontalAlignment(SwingConstants.CENTER);
     }
+    // don't initialize Equation... It being null is how GraphPanel knows to not graph it
+    equationEquation.add(null);
     rebuildTabEquation();
   }
   
@@ -182,7 +183,12 @@ public class GraphFrame extends JFrame {
         if (text == null || text.isEmpty()) {
           continue;
         } else {
-          equationEquation.set(x, new Equation(text, arrX, eqName));
+          try {
+            equationEquation.set(x, new Equation(text, arrX, eqName));
+          } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error: ",
+              JOptionPane.ERROR_MESSAGE);
+          }
           equationEquation.get(x).setGlobalFunc(true);
           continue;
         }
@@ -192,7 +198,11 @@ public class GraphFrame extends JFrame {
         equationEquation.get(x).setName(null);
         continue;
       }
-      equationEquation.get(x).setEquation(text);
+      try {
+        equationEquation.get(x).setEquation(text);
+      } catch (IllegalArgumentException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Error: ", JOptionPane.ERROR_MESSAGE);
+      }
       equationEquation.get(x).setName(eqName);
       equationEquation.get(x).setGlobalFunc(true);
     }
@@ -210,13 +220,13 @@ public class GraphFrame extends JFrame {
       panelTopEquation.removeAll();
     }
     
-    // adds components for equations to panelTopEquation
     JButton tmpButton;
+    // adds components for equations to panelTopEquation
     for (int x = 0; x < equationText.size(); x++) {
       panelTopEquation.add(equationName.get(x));
       panelTopEquation.add(equationText.get(x));
+      final JTextField tmpVar = equationText.get(x);
       tmpButton = new JButton("Delete equation");
-      final int tmpVar = x;// TODO there has to be a better way...
       tmpButton.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -227,18 +237,17 @@ public class GraphFrame extends JFrame {
     }
     
     // adds the bottom row to panelTopEquation
+    
+    // TODO allow renaming & sorting equations
     // tmpButton = new JButton("Sort");
     // tmpButton.addActionListener(new ActionListener() {
     // @Override
     // public void actionPerformed(ActionEvent e) {
-    // // TODO Auto-generated method stub
-    // JOptionPane.showMessageDialog(GraphFrame.this,
-    // "Sorting equations by name has not\nbeen implemented yet. Sorry!\n(Won't be implemented for a
-    // while;\nnot until you can rename equations)");
+    // todo
     // }
     // });
+    
     panelTopEquation.add(new JLabel());// srsly... Why can't I just do null.... :(
-    // panelTopEquation.add(tmpButton);
     tmpButton = new JButton("add equation");
     tmpButton.addActionListener(new ActionListener() {
       @Override
@@ -276,11 +285,19 @@ public class GraphFrame extends JFrame {
   }
   
   protected void removeEquation(int i) {
+    if (equationEquation.get(i) != null) {
+      equationEquation.get(i).setName(null);
+      equationEquation.get(i).setGlobalFunc(false);
+    }
+    equationEquation.remove(i);
     equationText.remove(i);
     equationName.remove(i);
-    equationEquation.get(i).setName(null);
-    equationEquation.get(i).setGlobalFunc(false);
-    equationEquation.remove(i);
     rebuildTabEquation();
+  }
+  
+  protected void removeEquation(JTextField equationTextField) {
+    int index = equationText.indexOf(equationTextField);
+    System.out.println("removing equation at index " + index);
+    removeEquation(index);
   }
 }
