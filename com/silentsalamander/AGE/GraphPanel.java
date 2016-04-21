@@ -88,10 +88,13 @@ class GraphPanel extends JPanel {// only visible within this package
     
     double lastY, thisY;
     double[] arrX = { 0 };
-    for (Equation eq : equations) {
+    Equation eq;
+    for (int i = 0; i < equations.length; i++) {
+      eq = equations[i];
       if (eq == null) {
         continue;// this happens when there is an empty text field
       }
+      g.setColor(graphFrame.getColor(i));
       arrX[0] = pixelToGraphX(-1);
       lastY = eq.evaluate(arrX);
       for (int x = 0; x <= getWidth() + 1; x++) {

@@ -20,6 +20,7 @@
 package com.silentsalamander.AGE;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -27,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,16 +37,16 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import com.silentsalamander.helper.Colors;
 import com.silentsalamander.helper.NumberTextField;
 import com.silentsalamander.helper.PrettyLogger;
 import com.silentsalamander.helper.equation.Equation;
 
 public class GraphFrame extends JFrame {
   // TODO
-  
-  // graph equations in different colors (maybe option to display a drop-down selection for each
-  // equation?)
   
   // options. esp. radian or degree mode (Complete SettingsFrame w/ config? separate tab? mix?)
   
@@ -69,22 +71,24 @@ public class GraphFrame extends JFrame {
       public void run() {
         JFrame f = new GraphFrame();
         f.pack();
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setVisible(true);
         f.setLocationRelativeTo(null);
       }
     });
   }
   
-  protected ArrayList<Equation>   equationEquation;
-  protected ArrayList<JLabel>     equationName;
-  protected ArrayList<JTextField> equationText;
-  protected JLabel                labelXMin, labelXMax, labelYMin, labelYMax;
-  protected GraphPanel            panelGraph;
-  protected JPanel                panelMaster;
-  protected JTabbedPane           panelTop;
-  protected JPanel                panelTopEquation;
-  protected JPanel                panelTopWindow;
-  protected NumberTextField       textXMin, textXMax, textYMin, textYMax;
+  protected ArrayList<Equation>      equationEquation;
+  protected ArrayList<JLabel>        equationName;
+  protected ArrayList<JTextField>    equationText;
+  protected ArrayList<JColorChooser> equationColor;
+  protected JLabel                   labelXMin, labelXMax, labelYMin, labelYMax;
+  protected GraphPanel               panelGraph;
+  protected JPanel                   panelMaster;
+  protected JTabbedPane              panelTop;
+  protected JPanel                   panelTopEquation;
+  protected JPanel                   panelTopWindow;
+  protected NumberTextField          textXMin, textXMax, textYMin, textYMax;
   
   public GraphFrame() {
     // #####CREATES THE TOP PANEL
@@ -92,6 +96,7 @@ public class GraphFrame extends JFrame {
     equationText = new ArrayList<>();
     equationName = new ArrayList<>();
     equationEquation = new ArrayList<>();
+    equationColor = new ArrayList<>();
     addEquation();
     
     // window panel
@@ -150,6 +155,7 @@ public class GraphFrame extends JFrame {
       equationName.add(new JLabel(((char) ('a' - 1 + equationText.size())) + "(x)"));
       equationName.get(equationName.size() - 1).setHorizontalAlignment(SwingConstants.CENTER);
     }
+    equationColor.add(new JColorChooser(Colors.getPrettyColors().get(equationColor.size())));
     // don't initialize Equation... It being null is how GraphPanel knows to not graph it
     equationEquation.add(null);
     rebuildTabEquation();
@@ -217,7 +223,7 @@ public class GraphFrame extends JFrame {
     // makes sure that panelTopEquation is ready
     if (panelTopEquation == null) {
       panelTopEquation = new JPanel();
-      panelTopEquation.setLayout(new GridLayout(0, 3));// 0 will scale # of rows as needed
+      panelTopEquation.setLayout(new GridLayout(0, 4));// 0 will scale # of rows as needed
     } else {
       panelTopEquation.removeAll();
     }
@@ -228,6 +234,25 @@ public class GraphFrame extends JFrame {
       panelTopEquation.add(equationName.get(x));
       panelTopEquation.add(equationText.get(x));
       final JTextField tmpVar = equationText.get(x);
+      final JButton colorButton = new JButton("Color");
+      colorButton.setBackground(equationColor.get(x).getColor());
+      colorButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          JFrame f = new JFrame("Color chooser");
+          f.setContentPane(equationColor.get(equationText.indexOf(tmpVar)));
+          f.pack();
+          f.setLocationRelativeTo(GraphFrame.this);
+          f.setVisible(true);
+        }
+      });
+      equationColor.get(x).getSelectionModel().addChangeListener(new ChangeListener() {
+        @Override
+        public void stateChanged(ChangeEvent e) {
+          colorButton.setBackground(equationColor.get(equationText.indexOf(tmpVar)).getColor());
+        }
+      });
+      panelTopEquation.add(colorButton);
       tmpButton = new JButton("Delete equation");
       tmpButton.addActionListener(new ActionListener() {
         @Override
@@ -252,6 +277,7 @@ public class GraphFrame extends JFrame {
     panelTopEquation.add(new JLabel());// srsly... Why can't I just do null.... :(
     tmpButton = new JButton("add equation");
     tmpButton.addActionListener(new ActionListener() {
+      
       @Override
       public void actionPerformed(ActionEvent e) {
         addEquation();
@@ -294,6 +320,7 @@ public class GraphFrame extends JFrame {
     equationEquation.remove(i);
     equationText.remove(i);
     equationName.remove(i);
+    equationColor.remove(i);
     rebuildTabEquation();
   }
   
@@ -301,5 +328,10 @@ public class GraphFrame extends JFrame {
     int index = equationText.indexOf(equationTextField);
     System.out.println("removing equation at index " + index);
     removeEquation(index);
+  }
+  
+  public Color getColor(int i) {
+    Color old = equationColor.get(i).getColor();
+    return new Color(old.getRGB());
   }
 }
