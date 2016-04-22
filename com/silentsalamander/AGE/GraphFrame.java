@@ -19,7 +19,6 @@
 
 package com.silentsalamander.AGE;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -33,6 +32,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -47,6 +47,8 @@ import com.silentsalamander.helper.equation.Equation;
 
 public class GraphFrame extends JFrame {
   // TODO
+  
+  // scroll pane for when large number of equations
   
   // options. esp. radian or degree mode (Complete SettingsFrame w/ config? separate tab? mix?)
   
@@ -84,7 +86,7 @@ public class GraphFrame extends JFrame {
   protected ArrayList<JColorChooser> equationColor;
   protected JLabel                   labelXMin, labelXMax, labelYMin, labelYMax;
   protected GraphPanel               panelGraph;
-  protected JPanel                   panelMaster;
+  protected JSplitPane               panelMaster;
   protected JTabbedPane              panelTop;
   protected JPanel                   panelTopEquation;
   protected JPanel                   panelTopWindow;
@@ -140,10 +142,9 @@ public class GraphFrame extends JFrame {
     
     
     // #####CREATES THE MASTER PANEL
-    panelMaster = new JPanel();
-    panelMaster.setLayout(new BorderLayout());
-    panelMaster.add(panelGraph, BorderLayout.CENTER);
-    panelMaster.add(panelTop, BorderLayout.NORTH);
+    panelMaster = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    panelMaster.setTopComponent(panelTop);
+    panelMaster.setBottomComponent(panelGraph);
     
     // #####duh
     setContentPane(panelMaster);
@@ -155,10 +156,15 @@ public class GraphFrame extends JFrame {
       equationName.add(new JLabel(((char) ('a' - 1 + equationText.size())) + "(x)"));
       equationName.get(equationName.size() - 1).setHorizontalAlignment(SwingConstants.CENTER);
     }
-    equationColor.add(new JColorChooser(Colors.getPrettyColors().get(equationColor.size())));
+    if (equationColor.size() < Colors.getPrettyColors().size())
+      equationColor.add(new JColorChooser(Colors.getPrettyColors().get(equationColor.size())));
+    else
+      equationColor.add(new JColorChooser(Color.BLACK));
     // don't initialize Equation... It being null is how GraphPanel knows to not graph it
     equationEquation.add(null);
     rebuildTabEquation();
+    if (panelMaster != null)
+      panelMaster.setDividerLocation(-1);
   }
   
   public Equation[] getEquation() {
