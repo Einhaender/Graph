@@ -27,20 +27,14 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
-import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import com.silentsalamander.helper.Colors;
 import com.silentsalamander.helper.NumberTextField;
 import com.silentsalamander.helper.PrettyLogger;
 import com.silentsalamander.helper.equation.Equation;
@@ -80,25 +74,58 @@ public class AGEFrame extends JFrame {
     });
   }
   
-  protected ArrayList<Equation>      equationEquation;
-  protected ArrayList<JLabel>        equationName;
-  protected ArrayList<JTextField>    equationText;
-  protected ArrayList<JColorChooser> equationColor;
-  protected JLabel                   labelXMin, labelXMax, labelYMin, labelYMax;
-  protected PanelGraph               panelGraph;
-  protected JSplitPane               panelMaster;
-  protected JTabbedPane              panelTop;
-  protected JPanel                   panelTopEquation;
-  protected JPanel                   panelTopWindow;
-  protected NumberTextField          textXMin, textXMax, textYMin, textYMax;
+  protected ArrayList<GraphableEquation> graphableEquations = new ArrayList<>();
+  protected JLabel                       labelXMin, labelXMax, labelYMin, labelYMax;
+  protected PanelGraph                   panelGraph;
+  protected JSplitPane                   panelMaster;
+  protected JTabbedPane                  panelTop;
+  protected JPanel                       panelTopEquation;
+  protected JPanel                       panelTopEquationTop;
+  protected JPanel                       panelTopWindow;
+  protected NumberTextField              textXMin, textXMax, textYMin, textYMax;
   
   public AGEFrame() {
     // #####CREATES THE TOP PANEL
     // equation panel
-    equationText = new ArrayList<>();
-    equationName = new ArrayList<>();
-    equationEquation = new ArrayList<>();
-    equationColor = new ArrayList<>();
+    panelTopEquationTop = new JPanel();
+    JButton buttonAdd = new JButton("Add equation");
+    buttonAdd.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        addEquation();
+      }
+    });
+    JButton buttonGraph = new JButton("Graph!");
+    buttonGraph.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        double xMin = textXMin.getValueDouble();
+        double xMax = textXMax.getValueDouble();
+        double yMin = textYMin.getValueDouble();
+        double yMax = textYMax.getValueDouble();
+        if ((xMin >= xMax) || (yMin >= yMax)) {
+          JOptionPane.showMessageDialog(null,
+            "The maximum window bound must be greater than the minimum", "Error",
+            JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+        panelGraph.setXMin(xMin);
+        panelGraph.setXMax(xMax);
+        panelGraph.setYMin(yMin);
+        panelGraph.setYMax(yMax);
+        
+        updateEquations();
+        
+        panelGraph.repaint();
+      }
+    });
+    panelTopEquationTop.add(buttonAdd);
+    panelTopEquationTop.add(buttonGraph);
+    
+    panelTopEquation = new JPanel();
+    panelTopEquation.setLayout(new GridLayout(0, 1));
+    panelTopEquation.add(panelTopEquationTop);
+    
     addEquation();
     
     // window panel
@@ -151,193 +178,57 @@ public class AGEFrame extends JFrame {
   }
   
   protected void addEquation() {
-    equationText.add(new JTextField(30));
-    if (equationName.size() < equationText.size()) {
-      equationName.add(new JLabel(((char) ('a' - 1 + equationText.size())) + "(x)"));
-      equationName.get(equationName.size() - 1).setHorizontalAlignment(SwingConstants.CENTER);
-    }
-    if (equationColor.size() < Colors.getPrettyColors().size())
-      equationColor.add(new JColorChooser(Colors.getPrettyColors().get(equationColor.size())));
-    else
-      equationColor.add(new JColorChooser(Color.BLACK));
-    // don't initialize Equation... It being null is how GraphPanel knows to not graph it
-    equationEquation.add(null);
-    rebuildTabEquation();
+    GraphableEquation ge = new GraphableEquation();
+    ge.addDeleteListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!(e.getSource() instanceof GraphableEquation))
+          throw new Error("this should NEVER happen.");
+        removeEquation(graphableEquations.indexOf(e.getSource()));
+      }
+    });
+    graphableEquations.add(ge);
+    panelTopEquation.add(ge.getPanel());
     if (panelMaster != null)
       panelMaster.setDividerLocation(-1);
   }
   
   public Equation[] getEquation() {
-    if (equationEquation == null || equationEquation.size() == 0) {
+    if (graphableEquations == null || graphableEquations.size() == 0) {
       return null;
     }
-    Equation[] arr = new Equation[equationEquation.size()];
-    return equationEquation.toArray(arr);
+    Equation[] arr = new Equation[graphableEquations.size()];
+    for (int i = 0; i < graphableEquations.size(); i++) {
+      arr[i] = graphableEquations.get(i).getEquation();
+    }
+    return arr;
   }
   
-  protected void rebuildEquations() {
-    String[] arrX = { "x" };
-    String text, eqName;
-    
-    
-    // Only in unusual circumstances will this do stuff, and when it does it doesn't do much.
-    // just here for good practice.
-    equationEquation.ensureCapacity(equationText.size());
-    
-    
-    while (equationEquation.size() < equationText.size()) {
-      equationEquation.add(null);
-    }
-    
-    for (int x = 0; x < equationText.size(); x++) {
-      text = equationText.get(x).getText().trim();
-      eqName = equationName.get(x).getText().trim();
-      eqName = eqName.substring(0, eqName.length() - 3);
-      if (equationEquation.get(x) == null) {
-        if (text == null || text.isEmpty()) {
-          continue;
-        } else {
-          try {
-            equationEquation.set(x, new Equation(text, arrX, eqName));
-          } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error: ",
-              JOptionPane.ERROR_MESSAGE);
-          }
-          equationEquation.get(x).setGlobalFunc(true);
-          continue;
-        }
-      }
-      if (text == null || text.isEmpty()) {
-        equationEquation.get(x).setGlobalFunc(false);
-        equationEquation.get(x).setName(null);
-        continue;
-      }
+  protected void updateEquations() {
+    for (int x = 0; x < graphableEquations.size(); x++) {
       try {
-        equationEquation.get(x).setEquation(text);
+        graphableEquations.get(x).update();
       } catch (IllegalArgumentException e) {
         JOptionPane.showMessageDialog(this, e.getMessage(), "Error: ", JOptionPane.ERROR_MESSAGE);
       }
-      equationEquation.get(x).setName(eqName);
-      equationEquation.get(x).setGlobalFunc(true);
     }
   }
   
-  /**
-   * Called after adding or removing an equation to update the GUI
-   */
-  private void rebuildTabEquation() {
-    // makes sure that panelTopEquation is ready
-    if (panelTopEquation == null) {
-      panelTopEquation = new JPanel();
-      panelTopEquation.setLayout(new GridLayout(0, 4));// 0 will scale # of rows as needed
-    } else {
-      panelTopEquation.removeAll();
-    }
-    
-    JButton tmpButton;
-    // adds components for equations to panelTopEquation
-    for (int x = 0; x < equationText.size(); x++) {
-      panelTopEquation.add(equationName.get(x));
-      panelTopEquation.add(equationText.get(x));
-      final JTextField tmpVar = equationText.get(x);
-      final JButton colorButton = new JButton("Color");
-      colorButton.setBackground(equationColor.get(x).getColor());
-      colorButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          JFrame f = new JFrame("Color chooser");
-          f.setContentPane(equationColor.get(equationText.indexOf(tmpVar)));
-          f.pack();
-          f.setLocationRelativeTo(AGEFrame.this);
-          f.setVisible(true);
-        }
-      });
-      equationColor.get(x).getSelectionModel().addChangeListener(new ChangeListener() {
-        @Override
-        public void stateChanged(ChangeEvent e) {
-          colorButton.setBackground(equationColor.get(equationText.indexOf(tmpVar)).getColor());
-        }
-      });
-      panelTopEquation.add(colorButton);
-      tmpButton = new JButton("Delete equation");
-      tmpButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          removeEquation(tmpVar);
-        }
-      });
-      panelTopEquation.add(tmpButton);
-    }
-    
-    // adds the bottom row to panelTopEquation
-    
-    // TODO allow renaming & sorting equations
-    // tmpButton = new JButton("Sort");
-    // tmpButton.addActionListener(new ActionListener() {
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // todo
-    // }
-    // });
-    
-    panelTopEquation.add(new JLabel());// srsly... Why can't I just do null.... :(
-    tmpButton = new JButton("add equation");
-    tmpButton.addActionListener(new ActionListener() {
-      
+  protected void removeEquation(final int i) {
+    graphableEquations.get(i).close();
+    graphableEquations.remove(i);
+    SwingUtilities.invokeLater(new Runnable() {
       @Override
-      public void actionPerformed(ActionEvent e) {
-        addEquation();
+      public void run() {
+        panelTopEquation.remove(i + 1);// +1 because index 0 is the add/graph panel
+        AGEFrame.this.pack();// TODO isn't there some other method for updating panels after
+                             // removing components?
       }
     });
-    panelTopEquation.add(tmpButton);
-    tmpButton = new JButton("Graph!");
-    tmpButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        rebuildEquations();
-        
-        double xMin = textXMin.getValueDouble();
-        double xMax = textXMax.getValueDouble();
-        double yMin = textYMin.getValueDouble();
-        double yMax = textYMax.getValueDouble();
-        if ((xMin >= xMax) || (yMin >= yMax)) {
-          JOptionPane.showMessageDialog(null,
-            "The maximum window bound must be greater than the minimum", "Error",
-            JOptionPane.ERROR_MESSAGE);
-          return;
-        }
-        panelGraph.setXMin(xMin);
-        panelGraph.setXMax(xMax);
-        panelGraph.setYMin(yMin);
-        panelGraph.setYMax(yMax);
-        
-        panelGraph.repaint();
-      }
-    });
-    panelTopEquation.add(tmpButton);
-    pack();
-  }
-  
-  protected void removeEquation(int i) {
-    if (equationEquation.get(i) != null) {
-      equationEquation.get(i).setName(null);
-      equationEquation.get(i).setGlobalFunc(false);
-    }
-    equationEquation.remove(i);
-    equationText.remove(i);
-    equationName.remove(i);
-    equationColor.remove(i);
-    rebuildTabEquation();
-  }
-  
-  protected void removeEquation(JTextField equationTextField) {
-    int index = equationText.indexOf(equationTextField);
-    System.out.println("removing equation at index " + index);
-    removeEquation(index);
   }
   
   public Color getColor(int i) {
-    Color old = equationColor.get(i).getColor();
+    Color old = graphableEquations.get(i).getColor();
     return new Color(old.getRGB());
   }
 }
