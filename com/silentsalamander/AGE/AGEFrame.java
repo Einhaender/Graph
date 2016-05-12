@@ -45,7 +45,7 @@ import com.silentsalamander.helper.NumberTextField;
 import com.silentsalamander.helper.PrettyLogger;
 import com.silentsalamander.helper.equation.Equation;
 
-public class GraphFrame extends JFrame {
+public class AGEFrame extends JFrame {
   // TODO
   
   // scroll pane for when large number of equations
@@ -71,7 +71,7 @@ public class GraphFrame extends JFrame {
     SwingUtilities.invokeLater(new Runnable() {
       @Override
       public void run() {
-        JFrame f = new GraphFrame();
+        JFrame f = new AGEFrame();
         f.pack();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setVisible(true);
@@ -85,14 +85,14 @@ public class GraphFrame extends JFrame {
   protected ArrayList<JTextField>    equationText;
   protected ArrayList<JColorChooser> equationColor;
   protected JLabel                   labelXMin, labelXMax, labelYMin, labelYMax;
-  protected GraphPanel               panelGraph;
+  protected PanelGraph               panelGraph;
   protected JSplitPane               panelMaster;
   protected JTabbedPane              panelTop;
   protected JPanel                   panelTopEquation;
   protected JPanel                   panelTopWindow;
   protected NumberTextField          textXMin, textXMax, textYMin, textYMax;
   
-  public GraphFrame() {
+  public AGEFrame() {
     // #####CREATES THE TOP PANEL
     // equation panel
     equationText = new ArrayList<>();
@@ -133,7 +133,7 @@ public class GraphFrame extends JFrame {
     
     
     // #####CREATES THE GRAPH PANEL
-    panelGraph = new GraphPanel(this);
+    panelGraph = new PanelGraph(this);
     panelGraph.setXMin(textXMin.getValueDouble());
     panelGraph.setXMax(textXMax.getValueDouble());
     panelGraph.setYMin(textYMin.getValueDouble());
@@ -248,7 +248,7 @@ public class GraphFrame extends JFrame {
           JFrame f = new JFrame("Color chooser");
           f.setContentPane(equationColor.get(equationText.indexOf(tmpVar)));
           f.pack();
-          f.setLocationRelativeTo(GraphFrame.this);
+          f.setLocationRelativeTo(AGEFrame.this);
           f.setVisible(true);
         }
       });

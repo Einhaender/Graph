@@ -29,7 +29,7 @@ import javax.swing.JPanel;
 import com.silentsalamander.helper.PrettyLogger;
 import com.silentsalamander.helper.equation.Equation;
 
-class GraphPanel extends JPanel {// only visible within this package
+class PanelGraph extends JPanel {// only visible within this package
   // This is all code I wrote years ago when I was much less experienced with java, so:
   // TODO try to clean up this big mess of a class
   
@@ -42,11 +42,11 @@ class GraphPanel extends JPanel {// only visible within this package
   
   private final Color  COLORBACKROUND = Color.LIGHT_GRAY;
   
-  protected GraphFrame graphFrame;
+  protected AGEFrame graphFrame;
   
   protected double     xMin, xMax, yMin, yMax;
   
-  public GraphPanel(GraphFrame graphFrame) {
+  public PanelGraph(AGEFrame graphFrame) {
     this.graphFrame = graphFrame;
   }
   
