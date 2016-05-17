@@ -39,7 +39,7 @@ public class GraphableEquation {
     labelName = new JLabel(((char) ('a' + numGenerated)) + "(x)");
     labelName.setHorizontalAlignment(SwingConstants.CENTER);
     
-    textFieldEquation = new JTextField();
+    textFieldEquation = new JTextField(10);
     textFieldEquation.setText("");
     
     colorChooser = new JColorChooser(prettyColors.get((int) (Math.random() * prettyColors.size())));

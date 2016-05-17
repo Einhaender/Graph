@@ -20,10 +20,13 @@
 package com.silentsalamander.AGE;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -31,18 +34,20 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import com.silentsalamander.helper.NumberTextField;
 import com.silentsalamander.helper.PrettyLogger;
 import com.silentsalamander.helper.equation.Equation;
 
 public class AGEFrame extends JFrame {
   // TODO
-  
-  // scroll pane for when large number of equations
   
   // options. esp. radian or degree mode (Complete SettingsFrame w/ config? separate tab? mix?)
   
@@ -66,7 +71,6 @@ public class AGEFrame extends JFrame {
       @Override
       public void run() {
         JFrame f = new AGEFrame();
-        f.pack();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setVisible(true);
         f.setLocationRelativeTo(null);
@@ -83,8 +87,16 @@ public class AGEFrame extends JFrame {
   protected JPanel                       panelTopEquationTop;
   protected JPanel                       panelTopWindow;
   protected NumberTextField              textXMin, textXMax, textYMin, textYMax;
+  private JScrollPane                    panelTopEquationScrollable;
   
   public AGEFrame() {
+    addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentResized(ComponentEvent e) {
+        super.componentResized(e);
+        resetDividerLocation();
+      }
+    });
     // #####CREATES THE TOP PANEL
     // equation panel
     panelTopEquationTop = new JPanel();
@@ -153,10 +165,18 @@ public class AGEFrame extends JFrame {
     panelTopWindow.add(textYMax);
     
     
+    panelTopEquationScrollable = new JScrollPane(panelTopEquation);
+    panelTopEquationScrollable.getPreferredSize();
+    
     panelTop = new JTabbedPane();
-    panelTop.addTab("Equations", panelTopEquation);
+    panelTop.addTab("Equations", panelTopEquationScrollable);
     panelTop.addTab("Window", panelTopWindow);
-    panelTop.setPreferredSize(new Dimension(500, 100));
+    panelTop.addChangeListener(new ChangeListener() {//listens for change of active tab
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        resetDividerLocation();
+      }
+    });
     
     
     // #####CREATES THE GRAPH PANEL
@@ -175,6 +195,8 @@ public class AGEFrame extends JFrame {
     
     // #####duh
     setContentPane(panelMaster);
+    
+    pack();
   }
   
   protected void addEquation() {
@@ -189,8 +211,9 @@ public class AGEFrame extends JFrame {
     });
     graphableEquations.add(ge);
     panelTopEquation.add(ge.getPanel());
-    if (panelMaster != null)
-      panelMaster.setDividerLocation(-1);
+    resetDividerLocation();
+    revalidate();
+    repaint();
   }
   
   public Equation[] getEquation() {
@@ -217,18 +240,59 @@ public class AGEFrame extends JFrame {
   protected void removeEquation(final int i) {
     graphableEquations.get(i).close();
     graphableEquations.remove(i);
-    SwingUtilities.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        panelTopEquation.remove(i + 1);// +1 because index 0 is the add/graph panel
-        AGEFrame.this.pack();// TODO isn't there some other method for updating panels after
-                             // removing components?
-      }
-    });
+    panelTopEquation.remove(i + 1);// +1 because index 0 is the add/graph panel
+    resetDividerLocation();
+    revalidate();
+    repaint();
   }
   
   public Color getColor(int i) {
     Color old = graphableEquations.get(i).getColor();
     return new Color(old.getRGB());
+  }
+  
+  private boolean resetDividerLocation() {
+    final double MAXPERPORTIONALSIZE = 0.3;// the top panel will never use more than this fraction
+                                           // of panelMaster
+    final int A_FEW_PIXELS;
+    {// brackets are here to limit the scope of pixels
+      int pixels = -1;// temp var with limited scope
+      try {
+        GraphableEquation ge = graphableEquations.get(0);
+        pixels = (int) (ge.getPanel().getHeight() * 0.15);
+      } catch (NullPointerException | IndexOutOfBoundsException e) {
+        // do nothing
+      } finally {
+        if (pixels <= 0)// if caught exception, or if the panel had a size of zero
+          pixels = 15; // reasonable value for most screens
+      }
+      A_FEW_PIXELS = pixels;
+    }
+    
+    if (panelMaster == null)
+      return false;
+    int sizeMaster = panelMaster.getHeight();
+    int sizeTopUnscrolled;
+    
+    Component selectedTab = panelTop.getComponent(panelTop.getSelectedIndex());
+    sizeTopUnscrolled = panelTop.getHeight() - selectedTab.getHeight();// size of the tabs
+    
+    if (selectedTab instanceof JScrollPane) {
+      log.finer("IS AN INSTANCE OF JSP");
+      JScrollPane jsp = (JScrollPane) selectedTab;
+      sizeTopUnscrolled += jsp.getComponent(0).getPreferredSize().height;
+    } else {
+      log.finer("IS NOT AN INSTANCE OF JSP");
+      sizeTopUnscrolled += selectedTab.getPreferredSize().height;
+    }
+    
+    
+    if (sizeTopUnscrolled < MAXPERPORTIONALSIZE * sizeMaster)
+      // sets the divider so that the top panel has all the space it needs; needs to add a few
+      // pixels because reasons.
+      panelMaster.setDividerLocation(sizeTopUnscrolled + A_FEW_PIXELS);
+    else
+      panelMaster.setDividerLocation(MAXPERPORTIONALSIZE);
+    return true;
   }
 }
