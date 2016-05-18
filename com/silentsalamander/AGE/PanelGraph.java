@@ -21,6 +21,7 @@ package com.silentsalamander.AGE;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.geom.Point2D.Double;
 import java.util.logging.Level;
 
 import javax.swing.JOptionPane;
@@ -40,11 +41,11 @@ class PanelGraph extends JPanel {// only visible within this package
     log = PrettyLogger.getPrimaryLogger();
   }
   
-  private final Color  COLORBACKROUND = Color.LIGHT_GRAY;
+  private final Color COLORBACKROUND = Color.LIGHT_GRAY;
   
-  protected AGEFrame graphFrame;
+  protected AGEFrame  graphFrame;
   
-  protected double     xMin, xMax, yMin, yMax;
+  protected double    xMin, xMax, yMin, yMax;
   
   public PanelGraph(AGEFrame graphFrame) {
     this.graphFrame = graphFrame;
@@ -134,5 +135,15 @@ class PanelGraph extends JPanel {// only visible within this package
   
   private int valueToPixelY(double yValue) {
     return (int) (getHeight() / (yMin - yMax) * (yValue - yMax));
+  }
+  
+  public void setMinimumCorner(Double minimumCorner) {
+    setXMin(minimumCorner.getX());
+    setYMin(minimumCorner.getY());
+  }
+
+  public void setMaximumCorner(Double maximumCorner) {
+    setXMax(maximumCorner.getX());
+    setYMax(maximumCorner.getY());
   }
 }

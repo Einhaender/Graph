@@ -31,18 +31,15 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.silentsalamander.helper.NumberTextField;
 import com.silentsalamander.helper.PrettyLogger;
 import com.silentsalamander.helper.equation.Equation;
 
@@ -79,14 +76,13 @@ public class AGEFrame extends JFrame {
   }
   
   protected ArrayList<GraphableEquation> graphableEquations = new ArrayList<>();
-  protected JLabel                       labelXMin, labelXMax, labelYMin, labelYMax;
   protected PanelGraph                   panelGraph;
   protected JSplitPane                   panelMaster;
   protected JTabbedPane                  panelTop;
   protected JPanel                       panelTopEquation;
   protected JPanel                       panelTopEquationTop;
-  protected JPanel                       panelTopWindow;
-  protected NumberTextField              textXMin, textXMax, textYMin, textYMax;
+  protected TabWindow                    tabWindow;
+  // protected JPanel panelTopWindow;
   private JScrollPane                    panelTopEquationScrollable;
   
   public AGEFrame() {
@@ -111,10 +107,10 @@ public class AGEFrame extends JFrame {
     buttonGraph.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        double xMin = textXMin.getValueDouble();
-        double xMax = textXMax.getValueDouble();
-        double yMin = textYMin.getValueDouble();
-        double yMax = textYMax.getValueDouble();
+        double xMin = tabWindow.getXMin();
+        double xMax = tabWindow.getXMax();
+        double yMin = tabWindow.getYMin();
+        double yMax = tabWindow.getYMax();
         if ((xMin >= xMax) || (yMin >= yMax)) {
           JOptionPane.showMessageDialog(null,
             "The maximum window bound must be greater than the minimum", "Error",
@@ -141,28 +137,7 @@ public class AGEFrame extends JFrame {
     addEquation();
     
     // window panel
-    textXMin = new NumberTextField(-10);
-    textXMax = new NumberTextField(10);
-    textYMin = new NumberTextField(-10);
-    textYMax = new NumberTextField(10);
-    labelXMin = new JLabel("X-Min");
-    labelXMin.setHorizontalAlignment(SwingConstants.CENTER);
-    labelXMax = new JLabel("X-Max");
-    labelXMax.setHorizontalAlignment(SwingConstants.CENTER);
-    labelYMin = new JLabel("Y-Min");
-    labelYMin.setHorizontalAlignment(SwingConstants.CENTER);
-    labelYMax = new JLabel("Y-Max");
-    labelYMax.setHorizontalAlignment(SwingConstants.CENTER);
-    panelTopWindow = new JPanel();
-    panelTopWindow.setLayout(new GridLayout(2, 5));
-    panelTopWindow.add(labelXMin);
-    panelTopWindow.add(labelXMax);
-    panelTopWindow.add(labelYMin);
-    panelTopWindow.add(labelYMax);
-    panelTopWindow.add(textXMin);
-    panelTopWindow.add(textXMax);
-    panelTopWindow.add(textYMin);
-    panelTopWindow.add(textYMax);
+    tabWindow = new TabWindow();
     
     
     panelTopEquationScrollable = new JScrollPane(panelTopEquation);
@@ -170,23 +145,18 @@ public class AGEFrame extends JFrame {
     
     panelTop = new JTabbedPane();
     panelTop.addTab("Equations", panelTopEquationScrollable);
-    panelTop.addTab("Window", panelTopWindow);
-    panelTop.addChangeListener(new ChangeListener() {//listens for change of active tab
+    panelTop.addTab("Window", tabWindow);
+    panelTop.addChangeListener(new ChangeListener() {// listens for change of active tab
       @Override
       public void stateChanged(ChangeEvent e) {
         resetDividerLocation();
       }
     });
     
-    
-    // #####CREATES THE GRAPH PANEL
     panelGraph = new PanelGraph(this);
-    panelGraph.setXMin(textXMin.getValueDouble());
-    panelGraph.setXMax(textXMax.getValueDouble());
-    panelGraph.setYMin(textYMin.getValueDouble());
-    panelGraph.setYMax(textYMax.getValueDouble());
-    panelGraph.setPreferredSize(new Dimension(500, 500));
-    
+    panelGraph.setMinimumCorner(tabWindow.getMinimumCorner());
+    panelGraph.setMaximumCorner(tabWindow.getMaximumCorner());
+    panelGraph.setPreferredSize(new Dimension(500, 500));// TODO make this less arbitrary
     
     // #####CREATES THE MASTER PANEL
     panelMaster = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
