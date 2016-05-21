@@ -24,7 +24,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -36,6 +38,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.silentsalamander.helper.PrettyLogger;
+import com.silentsalamander.helper.config.InvalidConfigFileException;
 import com.silentsalamander.helper.equation.Equation;
 
 public class AGEFrame extends JFrame {
@@ -44,6 +47,11 @@ public class AGEFrame extends JFrame {
   // AboutFrame
   
   // tick marks, even when axis off screen (labeled?)
+  
+  // config:
+  // log scale axis?
+  // x/y function, polar, parametric?
+  // tabWindow + tick marks => config?
   
   // allow renaming equations. This will involve checking for duplicate names on name change and
   // equation add. Leave names unchanged, but disable them as global variables?
@@ -86,7 +94,14 @@ public class AGEFrame extends JFrame {
     
     tabEquation = new TabEquations(this);
     tabWindow = new TabWindow();
-    tabConfig = new TabConfig();
+    try {
+      tabConfig = new TabConfig();
+    } catch (IOException | InvalidConfigFileException e1) {
+      log.printStackTrace(e1, Level.WARNING);
+      JOptionPane.showMessageDialog(this, "Could not load settings. Reverting to defaults.",
+        "WARNING:", JOptionPane.WARNING_MESSAGE);
+    }
+    
     
     panelTop = new JTabbedPane();
     panelTop.addTab("Equations", tabEquation);

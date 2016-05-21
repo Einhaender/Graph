@@ -1,19 +1,27 @@
 package com.silentsalamander.AGE;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JScrollPane;
 
+import com.silentsalamander.helper.FileManagement;
 import com.silentsalamander.helper.config.ConfigPanel;
 import com.silentsalamander.helper.config.ConfigValueBase;
 import com.silentsalamander.helper.config.ConfigValueComboString;
+import com.silentsalamander.helper.config.InvalidConfigFileException;
 
 public class TabConfig extends JScrollPane {
   private static final long serialVersionUID = -293097432549174756L;
+  private static String     fileLoc          = FileManagement.getDirectoryUserData()
+    + File.separatorChar + AGEFrame.class.getPackage().getName();
+  
   protected ConfigPanel     config;
   protected boolean         useRadians       = true;
   
-  public TabConfig() {
+  
+  public TabConfig() throws IOException, InvalidConfigFileException {
     ArrayList<ConfigValueBase> configItems = new ArrayList<>();
     configItems.add(new ConfigValueComboString() {
       private final String[] options = { "Radians", "Degrees" };
@@ -39,8 +47,7 @@ public class TabConfig extends JScrollPane {
       }
     });
     
-    // TODO file loc
-    config = new ConfigPanel(configItems, true, null, null);
+    config = new ConfigPanel(configItems, true, fileLoc, null);
     
     setViewportView(config);
   }
