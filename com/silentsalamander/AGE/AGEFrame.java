@@ -82,7 +82,6 @@ public class AGEFrame extends JFrame {
   protected JPanel                       panelTopEquation;
   protected JPanel                       panelTopEquationTop;
   protected TabWindow                    tabWindow;
-  // protected JPanel panelTopWindow;
   private JScrollPane                    panelTopEquationScrollable;
   
   public AGEFrame() {
@@ -222,8 +221,10 @@ public class AGEFrame extends JFrame {
   }
   
   private boolean resetDividerLocation() {
-    final double MAXPERPORTIONALSIZE = 0.3;// the top panel will never use more than this fraction
-                                           // of panelMaster
+    final double MAXPERPORTIONALSIZE = 0.5;// the top panel will never use more than this fraction
+                                           // of panelMaster's size
+    final double DEFAULTPERPORTIONALSIZE = 0.333;// if the top panel can't fit in the MAXP.S.; it
+                                                 // will gain a scroll bar and use this much space
     final int A_FEW_PIXELS;
     {// brackets are here to limit the scope of pixels
       int pixels = -1;// temp var with limited scope
@@ -262,7 +263,7 @@ public class AGEFrame extends JFrame {
       // pixels because reasons.
       panelMaster.setDividerLocation(sizeTopUnscrolled + A_FEW_PIXELS);
     else
-      panelMaster.setDividerLocation(MAXPERPORTIONALSIZE);
+      panelMaster.setDividerLocation(DEFAULTPERPORTIONALSIZE);
     return true;
   }
 }
