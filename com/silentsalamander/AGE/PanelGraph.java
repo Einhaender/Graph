@@ -41,7 +41,7 @@ class PanelGraph extends JPanel {// only visible within this package
     log = PrettyLogger.getPrimaryLogger();
   }
   
-  private final Color COLORBACKROUND = Color.LIGHT_GRAY;
+  public static final Color COLORBACKROUND = Color.BLACK;
   
   protected AGEFrame  graphFrame;
   

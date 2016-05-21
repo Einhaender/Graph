@@ -33,6 +33,14 @@ public class GraphableEquation {
   private JColorChooser             colorChooser;
   private ArrayList<ActionListener> deleteListeners;
   
+  static {
+    for (int x = 0; x < prettyColors.size(); x++)
+      if (prettyColors.get(x).equals(PanelGraph.COLORBACKROUND)) {
+        prettyColors.remove(x);
+        x--;
+      }
+  }
+  
   public GraphableEquation() {
     equation = null;// deliberately not initiated so that GraphPanel doesn't try to graph it.
     
@@ -42,7 +50,8 @@ public class GraphableEquation {
     textFieldEquation = new JTextField(10);
     textFieldEquation.setText("");
     
-    colorChooser = new JColorChooser(prettyColors.get((int) (Math.random() * prettyColors.size())));
+    int randomColorIndex = (int) (Math.random() * prettyColors.size());
+    colorChooser = new JColorChooser(prettyColors.get(randomColorIndex));
     colorChooser.getSelectionModel().addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
