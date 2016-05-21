@@ -22,17 +22,12 @@ package com.silentsalamander.AGE;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -75,14 +70,12 @@ public class AGEFrame extends JFrame {
     });
   }
   
-  protected ArrayList<GraphableEquation> graphableEquations = new ArrayList<>();
-  protected PanelGraph                   panelGraph;
-  protected JSplitPane                   panelMaster;
-  protected JTabbedPane                  panelTop;
-  protected JPanel                       panelTopEquation;
-  protected JPanel                       panelTopEquationTop;
-  protected TabWindow                    tabWindow;
-  private JScrollPane                    panelTopEquationScrollable;
+  
+  protected PanelGraph   panelGraph;
+  protected JSplitPane   panelMaster;
+  protected JTabbedPane  panelTop;
+  protected TabWindow    tabWindow;
+  protected TabEquations tabEquation;
   
   public AGEFrame() {
     addComponentListener(new ComponentAdapter() {
@@ -92,58 +85,12 @@ public class AGEFrame extends JFrame {
         resetDividerLocation();
       }
     });
-    // #####CREATES THE TOP PANEL
-    // equation panel
-    panelTopEquationTop = new JPanel();
-    JButton buttonAdd = new JButton("Add equation");
-    buttonAdd.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        addEquation();
-      }
-    });
-    JButton buttonGraph = new JButton("Graph!");
-    buttonGraph.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        double xMin = tabWindow.getXMin();
-        double xMax = tabWindow.getXMax();
-        double yMin = tabWindow.getYMin();
-        double yMax = tabWindow.getYMax();
-        if ((xMin >= xMax) || (yMin >= yMax)) {
-          JOptionPane.showMessageDialog(null,
-            "The maximum window bound must be greater than the minimum", "Error",
-            JOptionPane.ERROR_MESSAGE);
-          return;
-        }
-        panelGraph.setXMin(xMin);
-        panelGraph.setXMax(xMax);
-        panelGraph.setYMin(yMin);
-        panelGraph.setYMax(yMax);
-        
-        updateEquations();
-        
-        panelGraph.repaint();
-      }
-    });
-    panelTopEquationTop.add(buttonAdd);
-    panelTopEquationTop.add(buttonGraph);
     
-    panelTopEquation = new JPanel();
-    panelTopEquation.setLayout(new GridLayout(0, 1));
-    panelTopEquation.add(panelTopEquationTop);
-    
-    addEquation();
-    
-    // window panel
+    tabEquation = new TabEquations(this);
     tabWindow = new TabWindow();
     
-    
-    panelTopEquationScrollable = new JScrollPane(panelTopEquation);
-    panelTopEquationScrollable.getPreferredSize();
-    
     panelTop = new JTabbedPane();
-    panelTop.addTab("Equations", panelTopEquationScrollable);
+    panelTop.addTab("Equations", tabEquation);
     panelTop.addTab("Window", tabWindow);
     panelTop.addChangeListener(new ChangeListener() {// listens for change of active tab
       @Override
@@ -168,59 +115,15 @@ public class AGEFrame extends JFrame {
     pack();
   }
   
-  protected void addEquation() {
-    GraphableEquation ge = new GraphableEquation();
-    ge.addDeleteListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (!(e.getSource() instanceof GraphableEquation))
-          throw new Error("this should NEVER happen.");
-        removeEquation(graphableEquations.indexOf(e.getSource()));
-      }
-    });
-    graphableEquations.add(ge);
-    panelTopEquation.add(ge.getPanel());
-    resetDividerLocation();
-    revalidate();
-    repaint();
-  }
-  
   public Equation[] getEquation() {
-    if (graphableEquations == null || graphableEquations.size() == 0) {
-      return null;
-    }
-    Equation[] arr = new Equation[graphableEquations.size()];
-    for (int i = 0; i < graphableEquations.size(); i++) {
-      arr[i] = graphableEquations.get(i).getEquation();
-    }
-    return arr;
-  }
-  
-  protected void updateEquations() {
-    for (int x = 0; x < graphableEquations.size(); x++) {
-      try {
-        graphableEquations.get(x).update();
-      } catch (IllegalArgumentException e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Error: ", JOptionPane.ERROR_MESSAGE);
-      }
-    }
-  }
-  
-  protected void removeEquation(final int i) {
-    graphableEquations.get(i).close();
-    graphableEquations.remove(i);
-    panelTopEquation.remove(i + 1);// +1 because index 0 is the add/graph panel
-    resetDividerLocation();
-    revalidate();
-    repaint();
+    return tabEquation.getEquations();
   }
   
   public Color getColor(int i) {
-    Color old = graphableEquations.get(i).getColor();
-    return new Color(old.getRGB());
+    return tabEquation.getColor(i);
   }
   
-  private boolean resetDividerLocation() {
+  boolean resetDividerLocation() {// package visibility so it can be accessed by TabEquations
     final double MAXPERPORTIONALSIZE = 0.5;// the top panel will never use more than this fraction
                                            // of panelMaster's size
     final double DEFAULTPERPORTIONALSIZE = 0.333;// if the top panel can't fit in the MAXP.S.; it
@@ -229,7 +132,7 @@ public class AGEFrame extends JFrame {
     {// brackets are here to limit the scope of pixels
       int pixels = -1;// temp var with limited scope
       try {
-        GraphableEquation ge = graphableEquations.get(0);
+        GraphableEquation ge = tabEquation.getGraphableEquations().get(0);
         pixels = (int) (ge.getPanel().getHeight() * 0.15);
       } catch (NullPointerException | IndexOutOfBoundsException e) {
         // do nothing
@@ -265,5 +168,34 @@ public class AGEFrame extends JFrame {
     else
       panelMaster.setDividerLocation(DEFAULTPERPORTIONALSIZE);
     return true;
+  }
+  
+  public void graph() {
+    double xMin = tabWindow.getXMin();
+    double xMax = tabWindow.getXMax();
+    double yMin = tabWindow.getYMin();
+    double yMax = tabWindow.getYMax();
+    if ((xMin >= xMax) || (yMin >= yMax)) {
+      JOptionPane.showMessageDialog(null,
+        "The maximum window bound must be greater than the minimum", "Error",
+        JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    panelGraph.setXMin(xMin);
+    panelGraph.setXMax(xMax);
+    panelGraph.setYMin(yMin);
+    panelGraph.setYMax(yMax);
+    
+    ArrayList<GraphableEquation> graphableEquations = tabEquation.getGraphableEquations();
+    for (int x = 0; x < graphableEquations.size(); x++) {
+      try {
+        graphableEquations.get(x).update();
+      } catch (IllegalArgumentException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Error: ", JOptionPane.ERROR_MESSAGE);
+        break;
+      }
+    }
+    
+    panelGraph.repaint();
   }
 }
