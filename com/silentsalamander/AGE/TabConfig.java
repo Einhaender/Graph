@@ -24,6 +24,11 @@ public class TabConfig extends JScrollPane {
       }
       
       @Override
+      public String getName() {
+        return "Angle Measurement";
+      }
+      
+      @Override
       public String[] getOptions() {
         return options;
       }
@@ -31,11 +36,6 @@ public class TabConfig extends JScrollPane {
       @Override
       protected void saveIndex(int i) {
         useRadians = (i == 0);
-      }
-      
-      @Override
-      public String getName() {
-        return "Angle Measurement";
       }
     });
     

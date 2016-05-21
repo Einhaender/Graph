@@ -14,10 +14,10 @@ import com.silentsalamander.helper.equation.Equation;
 
 public class TabEquations extends JScrollPane {
   private static final long              serialVersionUID   = -7547335977750370332L;
+  protected AGEFrame                     age;
   protected ArrayList<GraphableEquation> graphableEquations = new ArrayList<>();
   protected JPanel                       mainPanel;
   protected JPanel                       panelAddGraph;
-  protected AGEFrame                     age;
   
   public TabEquations(AGEFrame age) {
     this.age = age;
@@ -53,8 +53,9 @@ public class TabEquations extends JScrollPane {
     ge.addDeleteListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!(e.getSource() instanceof GraphableEquation))
+        if (!(e.getSource() instanceof GraphableEquation)) {
           throw new Error("this should NEVER happen.");
+        }
         removeEquation(graphableEquations.indexOf(e.getSource()));
       }
     });
@@ -66,17 +67,9 @@ public class TabEquations extends JScrollPane {
   }
   
   
-  protected void removeEquation(final int i) {
-    graphableEquations.get(i).close();
-    graphableEquations.remove(i);
-    mainPanel.remove(i + 1);// +1 because index 0 is the add/graph panel
-    age.resetDividerLocation();
-    revalidate();
-    repaint();
-  }
-  
-  public ArrayList<GraphableEquation> getGraphableEquations() {
-    return graphableEquations;
+  public Color getColor(int i) {
+    Color old = graphableEquations.get(i).getColor();
+    return new Color(old.getRGB());
   }
   
   public Equation[] getEquations() {
@@ -90,8 +83,16 @@ public class TabEquations extends JScrollPane {
     return arr;
   }
   
-  public Color getColor(int i) {
-    Color old = graphableEquations.get(i).getColor();
-    return new Color(old.getRGB());
+  public ArrayList<GraphableEquation> getGraphableEquations() {
+    return graphableEquations;
+  }
+  
+  protected void removeEquation(final int i) {
+    graphableEquations.get(i).close();
+    graphableEquations.remove(i);
+    mainPanel.remove(i + 1);// +1 because index 0 is the add/graph panel
+    age.resetDividerLocation();
+    revalidate();
+    repaint();
   }
 }

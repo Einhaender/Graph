@@ -114,6 +114,16 @@ class PanelGraph extends JPanel {// only visible within this package
     return (xMax - xMin) / getWidth() * x + xMin;
   }
   
+  public void setMaximumCorner(Double maximumCorner) {
+    setXMax(maximumCorner.getX());
+    setYMax(maximumCorner.getY());
+  }
+  
+  public void setMinimumCorner(Double minimumCorner) {
+    setXMin(minimumCorner.getX());
+    setYMin(minimumCorner.getY());
+  }
+  
   public void setXMax(double xMax) {
     this.xMax = xMax;
   }
@@ -132,15 +142,5 @@ class PanelGraph extends JPanel {// only visible within this package
   
   private int valueToPixelY(double yValue) {
     return (int) (getHeight() / (yMin - yMax) * (yValue - yMax));
-  }
-  
-  public void setMinimumCorner(Double minimumCorner) {
-    setXMin(minimumCorner.getX());
-    setYMin(minimumCorner.getY());
-  }
-  
-  public void setMaximumCorner(Double maximumCorner) {
-    setXMax(maximumCorner.getX());
-    setYMax(maximumCorner.getY());
   }
 }

@@ -32,8 +32,8 @@ import com.silentsalamander.helper.NumberTextField;
 public class TabWindow extends JScrollPane {
   private static final long serialVersionUID = -1362611028851398686L;
   protected JLabel          labelXMin, labelXMax, labelYMin, labelYMax;
-  protected NumberTextField textXMin, textXMax, textYMin, textYMax;
   protected JPanel          mainPanel;
+  protected NumberTextField textXMin, textXMax, textYMin, textYMax;
   
   public TabWindow() {
     textXMin = new NumberTextField(-10);
@@ -63,27 +63,27 @@ public class TabWindow extends JScrollPane {
     setViewportView(mainPanel);
   }
   
-  public Point2D.Double getMinimumCorner() {
-    return new Point2D.Double(getXMin(), getYMin());
-  }
-  
   public Point2D.Double getMaximumCorner() {
     return new Point2D.Double(getXMax(), getYMax());
   }
   
-  public double getXMin() {
-    return textXMin.getValueDouble();
+  public Point2D.Double getMinimumCorner() {
+    return new Point2D.Double(getXMin(), getYMin());
   }
   
   public double getXMax() {
     return textXMax.getValueDouble();
   }
   
-  public double getYMin() {
-    return textYMin.getValueDouble();
+  public double getXMin() {
+    return textXMin.getValueDouble();
   }
   
   public double getYMax() {
     return textYMax.getValueDouble();
+  }
+  
+  public double getYMin() {
+    return textYMin.getValueDouble();
   }
 }

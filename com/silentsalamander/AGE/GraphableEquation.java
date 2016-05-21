@@ -21,25 +21,26 @@ import com.silentsalamander.helper.Colors;
 import com.silentsalamander.helper.equation.Equation;
 
 public class GraphableEquation {
-  private static final String[]     EQUATIONARGUMENTS = { "x" };
-  private static int                numGenerated      = 0;
-  private static ArrayList<Color>   prettyColors      = Colors.getPrettyColors();
-  private Equation                  equation;
-  private JPanel                    primaryPanel;
-  private JLabel                    labelName;
-  private JTextField                textFieldEquation;
-  private JButton                   buttonColor;
-  private JButton                   buttonDelete;
-  private JColorChooser             colorChooser;
-  private ArrayList<ActionListener> deleteListeners;
-  
+  private static final String[]   EQUATIONARGUMENTS = { "x" };
+  private static int              numGenerated      = 0;
+  private static ArrayList<Color> prettyColors      = Colors.getPrettyColors();
   static {
-    for (int x = 0; x < prettyColors.size(); x++)
+    for (int x = 0; x < prettyColors.size(); x++) {
       if (prettyColors.get(x).equals(PanelGraph.COLORBACKROUND)) {
         prettyColors.remove(x);
         x--;
       }
+    }
   }
+  
+  private JButton                   buttonColor;
+  private JButton                   buttonDelete;
+  private JColorChooser             colorChooser;
+  private ArrayList<ActionListener> deleteListeners;
+  private Equation                  equation;
+  private JLabel                    labelName;
+  private JPanel                    primaryPanel;
+  private JTextField                textFieldEquation;
   
   public GraphableEquation() {
     equation = null;// deliberately not initiated so that GraphPanel doesn't try to graph it.
@@ -55,11 +56,12 @@ public class GraphableEquation {
     colorChooser.getSelectionModel().addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
-        if (buttonColor != null)
+        if (buttonColor != null) {
           buttonColor.setBackground(colorChooser.getColor());
-        else
+        } else {
           throw new Error("An equation's color has changed, but the color button is null."
             + "This should NEVER happen.");
+        }
       }
     });
     
@@ -97,12 +99,11 @@ public class GraphableEquation {
     numGenerated++;
   }
   
-  public Equation getEquation() {
-    return equation;
-  }
-  
-  public Color getColor() {
-    return colorChooser.getColor();
+  public void addDeleteListener(ActionListener actionListener) {
+    if (deleteListeners == null) {
+      deleteListeners = new ArrayList<>();
+    }
+    deleteListeners.add(actionListener);
   }
   
   /**
@@ -116,6 +117,18 @@ public class GraphableEquation {
     }
   }
   
+  public Color getColor() {
+    return colorChooser.getColor();
+  }
+  
+  public Equation getEquation() {
+    return equation;
+  }
+  
+  public Component getPanel() {
+    return primaryPanel;
+  }
+  
   public void update() {
     String newText = textFieldEquation.getText();
     if (newText == null || newText.trim().isEmpty()) {
@@ -127,17 +140,8 @@ public class GraphableEquation {
       equation = new Equation(newText, EQUATIONARGUMENTS,
         fullName.substring(0, fullName.length() - 3));// actual name eg. "abc"
       equation.setGlobalFunc(true);
-    } else
+    } else {
       equation.setEquation(newText);
-  }
-  
-  public Component getPanel() {
-    return primaryPanel;
-  }
-  
-  public void addDeleteListener(ActionListener actionListener) {
-    if (deleteListeners == null)
-      deleteListeners = new ArrayList<>();
-    deleteListeners.add(actionListener);
+    }
   }
 }

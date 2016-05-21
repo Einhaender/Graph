@@ -49,7 +49,6 @@ public class AGEFrame extends JFrame {
   // equation add. Leave names unchanged, but disable them as global variables?
   // fix the current issue with duplicate names after removing out of order...
   
-  
   protected static PrettyLogger log;
   private static final long     serialVersionUID = 2266856448062439731L;
   static {
@@ -72,9 +71,9 @@ public class AGEFrame extends JFrame {
   protected PanelGraph   panelGraph;
   protected JSplitPane   panelMaster;
   protected JTabbedPane  panelTop;
-  protected TabWindow    tabWindow;
-  protected TabEquations tabEquation;
   protected TabConfig    tabConfig;
+  protected TabEquations tabEquation;
+  protected TabWindow    tabWindow;
   
   public AGEFrame() {
     addComponentListener(new ComponentAdapter() {
@@ -105,70 +104,21 @@ public class AGEFrame extends JFrame {
     panelGraph.setMaximumCorner(tabWindow.getMaximumCorner());
     panelGraph.setPreferredSize(new Dimension(500, 500));// TODO make this less arbitrary
     
-    // #####CREATES THE MASTER PANEL
     panelMaster = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
     panelMaster.setTopComponent(panelTop);
     panelMaster.setBottomComponent(panelGraph);
     
-    // #####duh
     setContentPane(panelMaster);
     
     pack();
-  }
-  
-  public Equation[] getEquation() {
-    return tabEquation.getEquations();
   }
   
   public Color getColor(int i) {
     return tabEquation.getColor(i);
   }
   
-  boolean resetDividerLocation() {// package visibility so it can be accessed by TabEquations
-    final double MAXPERPORTIONALSIZE = 0.5;// the top panel will never use more than this fraction
-                                           // of panelMaster's size
-    final double DEFAULTPERPORTIONALSIZE = 0.333;// if the top panel can't fit in the MAXP.S.; it
-                                                 // will gain a scroll bar and use this much space
-    final int A_FEW_PIXELS;
-    {// brackets are here to limit the scope of pixels
-      int pixels = -1;// temp var with limited scope
-      try {
-        GraphableEquation ge = tabEquation.getGraphableEquations().get(0);
-        pixels = (int) (ge.getPanel().getHeight() * 0.15);
-      } catch (NullPointerException | IndexOutOfBoundsException e) {
-        // do nothing
-      } finally {
-        if (pixels <= 0)// if caught exception, or if the panel had a size of zero
-          pixels = 15; // reasonable value for most screens
-      }
-      A_FEW_PIXELS = pixels;
-    }
-    
-    if (panelMaster == null)
-      return false;
-    int sizeMaster = panelMaster.getHeight();
-    int sizeTopUnscrolled;
-    
-    Component selectedTab = panelTop.getComponent(panelTop.getSelectedIndex());
-    sizeTopUnscrolled = panelTop.getHeight() - selectedTab.getHeight();// size of the tabs
-    
-    if (selectedTab instanceof JScrollPane) {
-      log.finer("IS AN INSTANCE OF JSP");
-      JScrollPane jsp = (JScrollPane) selectedTab;
-      sizeTopUnscrolled += jsp.getComponent(0).getPreferredSize().height;
-    } else {
-      log.finer("IS NOT AN INSTANCE OF JSP");
-      sizeTopUnscrolled += selectedTab.getPreferredSize().height;
-    }
-    
-    
-    if (sizeTopUnscrolled < MAXPERPORTIONALSIZE * sizeMaster)
-      // sets the divider so that the top panel has all the space it needs; needs to add a few
-      // pixels because reasons.
-      panelMaster.setDividerLocation(sizeTopUnscrolled + A_FEW_PIXELS);
-    else
-      panelMaster.setDividerLocation(DEFAULTPERPORTIONALSIZE);
-    return true;
+  public Equation[] getEquation() {
+    return tabEquation.getEquations();
   }
   
   public void graph() {
@@ -199,7 +149,57 @@ public class AGEFrame extends JFrame {
     
     panelGraph.repaint();
   }
-
+  
+  boolean resetDividerLocation() {// package visibility so it can be accessed by TabEquations
+    final double MAXPERPORTIONALSIZE = 0.5;// the top panel will never use more than this fraction
+                                           // of panelMaster's size
+    final double DEFAULTPERPORTIONALSIZE = 0.333;// if the top panel can't fit in the MAXP.S.; it
+                                                 // will gain a scroll bar and use this much space
+    final int A_FEW_PIXELS;
+    {// brackets are here to limit the scope of pixels
+      int pixels = -1;// temp var with limited scope
+      try {
+        GraphableEquation ge = tabEquation.getGraphableEquations().get(0);
+        pixels = (int) (ge.getPanel().getHeight() * 0.15);
+      } catch (NullPointerException | IndexOutOfBoundsException e) {
+        // do nothing
+      } finally {
+        if (pixels <= 0) {
+          pixels = 15; // reasonable value for most screens
+        }
+      }
+      A_FEW_PIXELS = pixels;
+    }
+    
+    if (panelMaster == null) {
+      return false;
+    }
+    int sizeMaster = panelMaster.getHeight();
+    int sizeTopUnscrolled;
+    
+    Component selectedTab = panelTop.getComponent(panelTop.getSelectedIndex());
+    sizeTopUnscrolled = panelTop.getHeight() - selectedTab.getHeight();// size of the tabs
+    
+    if (selectedTab instanceof JScrollPane) {
+      log.finer("IS AN INSTANCE OF JSP");
+      JScrollPane jsp = (JScrollPane) selectedTab;
+      sizeTopUnscrolled += jsp.getComponent(0).getPreferredSize().height;
+    } else {
+      log.finer("IS NOT AN INSTANCE OF JSP");
+      sizeTopUnscrolled += selectedTab.getPreferredSize().height;
+    }
+    
+    
+    if (sizeTopUnscrolled < MAXPERPORTIONALSIZE * sizeMaster) {
+      // sets the divider so that the top panel has all the space it needs; needs to add a few
+      // pixels because reasons.
+      panelMaster.setDividerLocation(sizeTopUnscrolled + A_FEW_PIXELS);
+    } else {
+      panelMaster.setDividerLocation(DEFAULTPERPORTIONALSIZE);
+    }
+    return true;
+  }
+  
   public boolean useRadians() {
     return tabConfig.useRadians();
   }
