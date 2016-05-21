@@ -24,14 +24,16 @@ import java.awt.geom.Point2D;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
 import com.silentsalamander.helper.NumberTextField;
 
-public class TabWindow extends JPanel {
+public class TabWindow extends JScrollPane {
   private static final long serialVersionUID = -1362611028851398686L;
   protected JLabel          labelXMin, labelXMax, labelYMin, labelYMax;
   protected NumberTextField textXMin, textXMax, textYMin, textYMax;
+  protected JPanel          mainPanel;
   
   public TabWindow() {
     textXMin = new NumberTextField(-10);
@@ -47,15 +49,18 @@ public class TabWindow extends JPanel {
     labelYMax = new JLabel("Y-Max");
     labelYMax.setHorizontalAlignment(SwingConstants.CENTER);
     
-    setLayout(new GridLayout(2, 5));
-    add(labelXMin);
-    add(labelXMax);
-    add(labelYMin);
-    add(labelYMax);
-    add(textXMin);
-    add(textXMax);
-    add(textYMin);
-    add(textYMax);
+    mainPanel = new JPanel();
+    mainPanel.setLayout(new GridLayout(2, 5));
+    mainPanel.add(labelXMin);
+    mainPanel.add(labelXMax);
+    mainPanel.add(labelYMin);
+    mainPanel.add(labelYMax);
+    mainPanel.add(textXMin);
+    mainPanel.add(textXMax);
+    mainPanel.add(textYMin);
+    mainPanel.add(textYMax);
+    
+    setViewportView(mainPanel);
   }
   
   public Point2D.Double getMinimumCorner() {
