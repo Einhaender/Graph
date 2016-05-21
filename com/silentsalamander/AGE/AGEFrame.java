@@ -41,8 +41,6 @@ import com.silentsalamander.helper.equation.Equation;
 public class AGEFrame extends JFrame {
   // TODO
   
-  // options. esp. radian or degree mode (Complete SettingsFrame w/ config? separate tab? mix?)
-  
   // AboutFrame
   
   // tick marks, even when axis off screen (labeled?)
@@ -76,6 +74,7 @@ public class AGEFrame extends JFrame {
   protected JTabbedPane  panelTop;
   protected TabWindow    tabWindow;
   protected TabEquations tabEquation;
+  protected TabConfig    tabConfig;
   
   public AGEFrame() {
     addComponentListener(new ComponentAdapter() {
@@ -88,10 +87,12 @@ public class AGEFrame extends JFrame {
     
     tabEquation = new TabEquations(this);
     tabWindow = new TabWindow();
+    tabConfig = new TabConfig();
     
     panelTop = new JTabbedPane();
     panelTop.addTab("Equations", tabEquation);
     panelTop.addTab("Window", tabWindow);
+    panelTop.addTab("Settings", tabConfig);
     panelTop.addChangeListener(new ChangeListener() {// listens for change of active tab
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -197,5 +198,9 @@ public class AGEFrame extends JFrame {
     }
     
     panelGraph.repaint();
+  }
+
+  public boolean useRadians() {
+    return tabConfig.useRadians();
   }
 }

@@ -34,18 +34,15 @@ class PanelGraph extends JPanel {// only visible within this package
   // This is all code I wrote years ago when I was much less experienced with java, so:
   // TODO try to clean up this big mess of a class
   
-  
+  public static final Color     COLORBACKROUND   = Color.BLACK;
   protected static PrettyLogger log;
   private static final long     serialVersionUID = 8666758096652663747L;
   static {
     log = PrettyLogger.getPrimaryLogger();
   }
   
-  public static final Color COLORBACKROUND = Color.BLACK;
-  
-  protected AGEFrame  graphFrame;
-  
-  protected double    xMin, xMax, yMin, yMax;
+  protected AGEFrame graphFrame;
+  protected double   xMin, xMax, yMin, yMax;
   
   public PanelGraph(AGEFrame graphFrame) {
     this.graphFrame = graphFrame;
@@ -88,11 +85,13 @@ class PanelGraph extends JPanel {// only visible within this package
     double lastY, thisY;
     double[] arrX = { 0 };
     Equation eq;
+    boolean useRadians = graphFrame.useRadians();
     for (int i = 0; i < equations.length; i++) {
       eq = equations[i];
       if (eq == null) {
         continue;// this happens when there is an empty text field
       }
+      eq.useRadians(useRadians);
       g.setColor(graphFrame.getColor(i));
       arrX[0] = pixelToGraphX(-1);
       lastY = eq.evaluate(arrX);
@@ -139,7 +138,7 @@ class PanelGraph extends JPanel {// only visible within this package
     setXMin(minimumCorner.getX());
     setYMin(minimumCorner.getY());
   }
-
+  
   public void setMaximumCorner(Double maximumCorner) {
     setXMax(maximumCorner.getX());
     setYMax(maximumCorner.getY());
