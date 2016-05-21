@@ -74,8 +74,6 @@ class PanelGraph extends JPanel {// only visible within this package
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
-    drawAxis(g);
-    
     g.setColor(COLORBACKROUND);
     g.fillRect(0, 0, getWidth(), getHeight());
     g.setColor(Color.BLACK);
