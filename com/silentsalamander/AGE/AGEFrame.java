@@ -24,6 +24,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -57,6 +59,8 @@ public class AGEFrame extends JFrame {
   // equation add. Leave names unchanged, but disable them as global variables?
   // fix the current issue with duplicate names after removing out of order...
   
+  // setting for divider control: automatic, default, manual
+  
   protected static PrettyLogger log;
   private static final long     serialVersionUID = 2266856448062439731L;
   static {
@@ -82,6 +86,8 @@ public class AGEFrame extends JFrame {
   protected TabConfig    tabConfig;
   protected TabEquations tabEquation;
   protected TabWindow    tabWindow;
+  protected boolean      dividerSetManually = false;
+  protected boolean      dividerBeingSet    = false;
   
   public AGEFrame() {
     addComponentListener(new ComponentAdapter() {
@@ -119,9 +125,26 @@ public class AGEFrame extends JFrame {
     panelGraph.setMaximumCorner(tabWindow.getMaximumCorner());
     panelGraph.setPreferredSize(new Dimension(500, 500));// TODO make this less arbitrary
     
-    panelMaster = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    panelMaster = new JSplitPane(JSplitPane.VERTICAL_SPLIT) {
+      private static final long serialVersionUID = 3443044750030817169L;
+      
+      @Override
+      public void setDividerLocation(double proportionalLocation) {
+        // AGEFrame.this.dividerBeingSet//TODO
+        super.setDividerLocation(proportionalLocation);
+      }
+    };
     panelMaster.setTopComponent(panelTop);
     panelMaster.setBottomComponent(panelGraph);
+    panelMaster.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY,
+      new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent pce) {
+          dividerSetManually = dividerSetManually || !dividerBeingSet;
+          System.out.println(
+            "div set manual set to " + dividerSetManually + "; being set is " + dividerBeingSet);
+        }
+      });
     
     setContentPane(panelMaster);
     
@@ -166,7 +189,7 @@ public class AGEFrame extends JFrame {
   }
   
   boolean resetDividerLocation() {// package visibility so it can be accessed by TabEquations
-    if (panelMaster == null) {
+    if (panelMaster == null || dividerSetManually) {
       return false;
     }
     
@@ -206,15 +229,26 @@ public class AGEFrame extends JFrame {
       sizeTopUnscrolled += selectedTab.getPreferredSize().height;
     }
     
-    
     if (sizeTopUnscrolled < MAXPERPORTIONALSIZE * sizeMaster) {
       // sets the divider so that the top panel has all the space it needs; needs to add a few
       // pixels because reasons.
-      panelMaster.setDividerLocation(sizeTopUnscrolled + A_FEW_PIXELS);
+      setDivLoc(sizeTopUnscrolled + A_FEW_PIXELS);
     } else {
-      panelMaster.setDividerLocation(DEFAULTPERPORTIONALSIZE);
+      setDivLoc(DEFAULTPERPORTIONALSIZE);
     }
     return true;
+  }
+  
+  private void setDivLoc(double d) {
+    dividerBeingSet = true;
+    panelMaster.setDividerLocation(d);
+    dividerBeingSet = false;
+  }
+  
+  private void setDivLoc(int i) {
+    dividerBeingSet = true;
+    panelMaster.setDividerLocation(i);
+    dividerBeingSet = false;
   }
   
   public boolean useRadians() {
