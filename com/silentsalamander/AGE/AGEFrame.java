@@ -166,6 +166,10 @@ public class AGEFrame extends JFrame {
   }
   
   boolean resetDividerLocation() {// package visibility so it can be accessed by TabEquations
+    if (panelMaster == null) {
+      return false;
+    }
+    
     final double MAXPERPORTIONALSIZE = 0.5;// the top panel will never use more than this fraction
                                            // of panelMaster's size
     final double DEFAULTPERPORTIONALSIZE = 0.333;// if the top panel can't fit in the MAXP.S.; it
@@ -186,9 +190,7 @@ public class AGEFrame extends JFrame {
       A_FEW_PIXELS = pixels;
     }
     
-    if (panelMaster == null) {
-      return false;
-    }
+    
     int sizeMaster = panelMaster.getHeight();
     int sizeTopUnscrolled;
     
