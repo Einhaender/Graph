@@ -141,8 +141,6 @@ public class AGEFrame extends JFrame {
         @Override
         public void propertyChange(PropertyChangeEvent pce) {
           dividerSetManually = dividerSetManually || !dividerBeingSet;
-          System.out.println(
-            "div set manual set to " + dividerSetManually + "; being set is " + dividerBeingSet);
         }
       });
     
