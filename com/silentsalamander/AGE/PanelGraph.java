@@ -22,7 +22,6 @@ package com.silentsalamander.AGE;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Point2D.Double;
-import java.util.logging.Level;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -100,8 +99,8 @@ class PanelGraph extends JPanel {// only visible within this package
           arrX[0] = pixelToGraphX(x);
           thisY = eq.evaluate(arrX);
         } catch (Exception e) {
+          log.printStackTrace(e);
           JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-          log.log(Level.WARNING, "caught exeption during graphing... halting proccess.", e);
           break;
         }
         g.drawLine(x - 1, valueToPixelY(lastY), x, valueToPixelY(thisY));

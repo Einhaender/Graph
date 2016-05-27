@@ -28,7 +28,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -103,7 +102,7 @@ public class AGEFrame extends JFrame {
     try {
       tabConfig = new TabConfig();
     } catch (IOException | InvalidConfigFileException e1) {
-      log.printStackTrace(e1, Level.WARNING);
+      log.printStackTrace(e1);
       JOptionPane.showMessageDialog(this, "Could not load settings. Reverting to defaults.",
         "WARNING:", JOptionPane.WARNING_MESSAGE);
     }
@@ -178,6 +177,7 @@ public class AGEFrame extends JFrame {
       try {
         graphableEquations.get(x).update();
       } catch (IllegalArgumentException e) {
+        log.printStackTrace(e);
         JOptionPane.showMessageDialog(this, e.getMessage(), "Error: ", JOptionPane.ERROR_MESSAGE);
         break;
       }
