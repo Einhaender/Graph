@@ -54,9 +54,7 @@ public class AGEFrame extends JFrame {
   // x/y function, polar, parametric?
   // tabWindow + tick marks => config?
   
-  // allow renaming equations. This will involve checking for duplicate names on name change and
-  // equation add. Leave names unchanged, but disable them as global variables?
-  // fix the current issue with duplicate names after removing out of order...
+  // improve equation name auto-generation
   
   // setting for divider control: automatic, default, manual
   
