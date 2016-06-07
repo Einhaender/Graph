@@ -22,8 +22,11 @@ package com.silentsalamander.AGE;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -38,6 +41,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.SplitPaneUI;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 import com.silentsalamander.helper.AboutPanel;
 import com.silentsalamander.helper.AboutPanel.LicenseInfo;
@@ -152,17 +157,37 @@ public class AGEFrame extends JFrame {
     };
     panelMaster.setTopComponent(panelTop);
     panelMaster.setBottomComponent(panelGraph);
-    panelMaster.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY,
-      new PropertyChangeListener() {
+    SplitPaneUI divider = panelMaster.getUI();
+    if (divider instanceof BasicSplitPaneUI) {
+      BasicSplitPaneUI div = (BasicSplitPaneUI) divider;
+      div.getDivider().addMouseListener(new MouseAdapter() {
+        Point pressLoc;
+        
         @Override
-        public void propertyChange(PropertyChangeEvent pce) {
-          dividerSetManually = dividerSetManually || !dividerBeingSet;
+        public void mousePressed(MouseEvent e) {
+          super.mousePressed(e);
+          pressLoc = e.getPoint();
+        }
+        
+        @Override
+        public void mouseReleased(MouseEvent e) {
+          super.mouseReleased(e);
+          if (!e.getPoint().equals(pressLoc)) {
+            dividerSetManually = true;
+          }
+          pressLoc = null;
         }
       });
+    } else {
+      String msg = "JSplitPane's UI was not a BasicSplitPaneUI. This should never happen?";
+      JOptionPane.showMessageDialog(this, msg, "ERROR: ", JOptionPane.ERROR_MESSAGE);
+      throw new Error(msg);
+    }
     
     setContentPane(panelMaster);
     
     pack();
+    resetDividerLocation();
   }
   
   public Color getColor(int i) {
