@@ -34,10 +34,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.silentsalamander.helper.AboutPanel;
+import com.silentsalamander.helper.AboutPanel.LicenseInfo;
+import com.silentsalamander.helper.AboutPanel.LicenseType;
 import com.silentsalamander.helper.PrettyLogger;
 import com.silentsalamander.helper.config.InvalidConfigFileException;
 import com.silentsalamander.helper.equation.Equation;
@@ -76,13 +80,13 @@ public class AGEFrame extends JFrame {
     });
   }
   
-  
   protected PanelGraph   panelGraph;
   protected JSplitPane   panelMaster;
   protected JTabbedPane  panelTop;
   protected TabConfig    tabConfig;
   protected TabEquations tabEquation;
   protected TabWindow    tabWindow;
+  protected JScrollPane  tabAbout;
   protected boolean      dividerSetManually = false;
   protected boolean      dividerBeingSet    = false;
   
@@ -105,14 +109,29 @@ public class AGEFrame extends JFrame {
         "WARNING:", JOptionPane.WARNING_MESSAGE);
     }
     
+    LicenseInfo info = new LicenseInfo();
+    info.setApplicationName("AGE Graphs Equations (AGE)");
+    info.setCopyrightContact("fire.4@cox.net");
+    info.setCopyrightDates("2016");
+    info.setCopyrightowner("Ivan Johnson");// If someone else were to contribute to this open
+                                           // source project this would become:
+                                           // "Ivan Johnson, et. al."
+    info
+      .setOneLineDescription("AGE Graphs Equations (AGE) is a java program that graphs equations");
+    
+    String aboutText = "AGE is a java program for graphing equations. It is free software, so everyone has access to the source code and can make their own versions of the program and distribute them as they like, so long as they distribute their own version as free software as well.";
+    tabAbout = new JScrollPane(new AboutPanel(LicenseType.GPLv3, info, aboutText));
+    tabAbout.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     
     panelTop = new JTabbedPane();
     panelTop.addTab("Equations", tabEquation);
     panelTop.addTab("Window", tabWindow);
     panelTop.addTab("Settings", tabConfig);
+    panelTop.addTab("About", tabAbout);
     panelTop.addChangeListener(new ChangeListener() {// listens for change of active tab
       @Override
       public void stateChanged(ChangeEvent e) {
+        dividerSetManually = false;// reset to automatic positioning of the divider on tab change
         resetDividerLocation();
       }
     });
